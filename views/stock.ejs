@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title><%= symbol %> - Stock</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #0f1115;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .stock-page {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .stock-header {
+            background: #171a21;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .symbol {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .price {
+            font-size: 32px;
+            margin-top: 10px;
+        }
+
+        .change {
+            margin-top: 5px;
+            font-size: 18px;
+        }
+
+        .chart {
+            height: 400px;
+            background: #171a21;
+            border-radius: 12px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="stock-page">
+
+    <div class="stock-header">
+
+        <div class="symbol">
+            <%= symbol %>
+        </div>
+
+        <div class="price" id="ltp">
+            Loading...
+        </div>
+
+        <div class="change" id="change">
+            Loading...
+        </div>
+
+    </div>
+
+    <div class="chart">
+
+    </div>
+
+</div>
+
+<script>
+    const symbol = "<%= symbol %>";
+
+    async function loadStock() {
+
+        try {
+
+            const response = await fetch(
+            `/api/CompanyDetails/${encodeURIComponent(symbol)}`
+        );
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(data);
+            
+           
+
+            document.getElementById("ltp").textContent =
+                Number(data.securityDailyTradeDto.lastTradedPrice).toFixed(2);
+
+            const change =
+                Number(data.securityDailyTradeDto.previousClose-data.securityDailyTradeDto.lastTradedPrice);
+
+            const changePercent =
+                Number(data.changePercent || 0);
+
+            document.getElementById("change").textContent =
+                `${change >= 0 ? "+" : ""}${change.toFixed(2)}
+                 (${changePercent >= 0 ? "+" : ""}${changePercent.toFixed(2)}%)`;
+
+        } catch (error) {
+
+            console.error("Stock API error:", error);
+
+            document.getElementById("ltp").textContent =
+                "Unavailable";
+
+            document.getElementById("change").textContent =
+                "";
+
+        }
+    }
+
+    loadStock();
+</script>
+
+</body>
+</html>

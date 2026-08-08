@@ -1,0 +1,307 @@
+const express = require("express");
+const Message = require("./models/Message");
+const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
+const dotenv = require("dotenv");
+const http = require("http");
+const { Server } = require("socket.io");
+const path = require("path");
+const axios = require("axios");
+
+dotenv.config();
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
+
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/api/nepse-index", async (req, res) => {
+    try {
+        const response = await axios.get(
+            "http://localhost:8000/NepseIndex"
+        );
+
+        const nepse = response.data["NEPSE Index"];
+
+        if (!nepse) {
+            return res.status(404).json({
+                error: "NEPSE Index not found"
+            });
+        }
+
+        const index = nepse.close;
+        const previousClose = nepse.previousClose;
+        const change = index - previousClose;
+        const changePercent = (change / previousClose) * 100;
+
+        res.json({
+            index: Number(index.toFixed(2)),
+            change: Number(change.toFixed(2)),
+            changePercent: Number(changePercent.toFixed(2)),
+            high: nepse.high,
+            low: nepse.low,
+            previousClose: previousClose,
+            generatedTime: nepse.generatedTime
+        });
+
+    } catch (error) {
+        console.error(error.message);
+
+        res.status(500).json({
+            error: "Unable to fetch NEPSE data"
+        });
+    }
+});
+
+app.get("/api/top-gainers", async (req, res) => {
+    try {
+        const response = await axios.get(
+            "http://localhost:8000/TopGainers",
+            { timeout: 10000 }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+        console.error("Top gainers error:", error.message);
+
+        res.status(500).json({
+            error: "Unable to fetch top gainers"
+        });
+    }
+});
+app.get("/api/top-losers", async (req, res) => {
+    try {
+        const response = await axios.get(
+            "http://localhost:8000/TopLosers",
+            { timeout: 10000 }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+        console.error("Top gainers error:", error.message);
+
+        res.status(500).json({
+            error: "Unable to fetch top gainers"
+        });
+    }
+});
+app.get("/api/CompanyList", async (req, res) => {
+    try {
+        const response = await axios.get(
+            "http://localhost:8000/CompanyList",
+            { timeout: 10000 }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+        console.error("Top gainers error:", error.message);
+
+        res.status(500).json({
+            error: "Unable to fetch top gainers"
+        });
+    }
+});
+
+
+app.get("/api/CompanyDetails/:symbol", async (req, res) => {
+
+    try {
+        const symbol = req.params.symbol;
+
+        const response = await axios.get(
+            "http://localhost:8000/CompanyDetails",
+            {
+                params: {
+                    symbol: symbol
+                }
+            }
+        );
+
+        res.json(response.data);
+
+    } catch(error) {
+        console.log(error.response?.data || error.message);
+
+        res.status(500).json({
+            error:"Unable to fetch company details"
+        });
+    }
+
+});
+app.get("/api/TopTenTurnoverScrips", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            "http://localhost:8000/TopTenTurnoverScrips");
+
+        res.json(response.data);
+
+    } catch(error) {
+        console.log(error.response?.data || error.message);
+
+        res.status(500).json({
+            error:"Unable to fetch company details"
+        });
+    }
+
+});
+
+app.get("/api/TradeTurnoverTransactionSubindices", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            "http://localhost:8000/TradeTurnoverTransactionSubindices");
+
+        res.json(response.data);
+
+    } catch(error) {
+        console.log(error.response?.data || error.message);
+
+        res.status(500).json({
+            error:"Unable to fetch company details"
+        });
+    }
+
+});
+
+app.get("/api/TopTenTurnoverScrips", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            "http://localhost:8000/TopTenTurnoverScrips");
+
+        res.json(response.data);
+
+    } catch(error) {
+        console.log(error.response?.data || error.message);
+
+        res.status(500).json({
+            error:"Unable to fetch company details"
+        });
+    }
+
+});
+
+app.get("/api/NepseSubIndices", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            "http://localhost:8000/NepseSubIndices");
+
+        res.json(response.data);
+
+    } catch(error) {
+        console.log(error.response?.data || error.message);
+
+        res.status(500).json({
+            error:"Unable to fetch company details"
+        });
+    }
+
+});
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// MongoDB
+mongoose.connect(process.env.MONGO_URI)
+.then(() => {
+    console.log("✅ MongoDB Connected");
+})
+.catch((err) => {
+    console.log("❌ MongoDB Error:", err);
+});
+
+// Routes
+app.use("/", require("./routes/auth"));
+
+// Socket.IO
+const users = {};
+
+io.on("connection", (socket) => {
+
+    console.log("🔵 User Connected:", socket.id);
+
+    socket.on("join", (username) => {
+
+        users[socket.id] = username;
+
+        io.emit("online", Object.values(users));
+
+    });
+
+socket.on("chat message", async (data) => {
+
+    try {
+
+        const message = {
+            username: users[socket.id] || "Guest",
+            message: data.message,
+            time: new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            })
+        };
+
+        // Save message to MongoDB
+        await Message.create(message);
+
+        // Send to all connected users
+        io.emit("chat message", message);
+
+    } catch (err) {
+        console.error("Message Save Error:", err);
+    }
+
+});
+
+    socket.on("disconnect", () => {
+
+        console.log("🔴 User Disconnected");
+
+        delete users[socket.id];
+
+        io.emit("online", Object.values(users));
+
+    });
+
+});
+
+app.get("/stock/:symbol", async (req, res) => {
+    try {
+        const symbol = req.params.symbol;
+
+        res.render("stock", {
+            symbol: symbol
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Unable to load stock");
+    }
+});
+
+// 404
+app.use((req, res) => {
+    res.status(404).send("404 - Page Not Found");
+});
+
+// Start Server
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
