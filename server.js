@@ -16,7 +16,7 @@ const io = new Server(server);
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -174,6 +174,25 @@ app.get("/api/TopTenTurnoverScrips", async (req, res) => {
 
 });
 
+app.get("/api/TopTenTransactionScrips", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            "http://localhost:8000/TopTenTransactionScrips");
+
+        res.json(response.data);
+
+    } catch(error) {
+        console.log(error.response?.data || error.message);
+
+        res.status(500).json({
+            error:"Unable to fetch transaction details"
+        });
+    }
+
+});
+
 app.get("/api/NepseSubIndices", async (req, res) => {
 
     try {
@@ -188,6 +207,60 @@ app.get("/api/NepseSubIndices", async (req, res) => {
 
         res.status(500).json({
             error:"Unable to fetch company details"
+        });
+    }
+
+});
+
+app.get("/api/DailyScripPriceGraph", async (req, res) => {
+
+    try {
+
+        const symbol = req.query.symbol;
+
+        if (!symbol) {
+            return res.status(400).json({ error: "symbol is required" });
+        }
+
+        const response = await axios.get(
+            "http://localhost:8000/DailyScripPriceGraph",
+            {
+                params: {
+                    symbol: symbol,
+                    type: 1
+                },
+                timeout: 15000
+            }
+        );
+
+        res.json(response.data);
+
+    } catch(error) {
+        console.log(error.response?.data || error.message);
+
+        res.status(500).json({
+            error:"Unable to fetch price graph"
+        });
+    }
+
+});
+
+app.get("/api/DailyNepseIndexGraph", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            "http://localhost:8000/DailyNepseIndexGraph",
+            { timeout: 15000 }
+        );
+
+        res.json(response.data);
+
+    } catch(error) {
+        console.log(error.response?.data || error.message);
+
+        res.status(500).json({
+            error:"Unable to fetch NEPSE index graph"
         });
     }
 

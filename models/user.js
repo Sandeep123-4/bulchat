@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
     premium: {
         type: Boolean,
         default: false
+    },
+    avatar: {
+        type: String,
+        default: ""
     }
 });
 
