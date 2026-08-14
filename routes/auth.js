@@ -75,6 +75,59 @@ router.post("/login", async (req, res) => {
     }
 });
 
+router.post("/profile/update", async (req, res) => {
+    try {
+
+        const token = req.cookies.token;
+
+        if (!token) {
+            return res.status(401).json({
+                message: "Not logged in"
+            });
+        }
+
+        // Verify cookie/JWT
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        // Get user ID from verified cookie
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const newName = req.body.username?.trim();
+
+        if (!newName) {
+            return res.status(400).json({
+                message: "Name cannot be empty"
+            });
+        }
+
+        // Update MongoDB
+        user.username = newName;
+
+        await user.save();
+
+        res.json({
+            success: true,
+            username: user.username
+        });
+
+    } catch (error) {
+
+        console.error("PROFILE UPDATE ERROR:", error);
+
+        res.status(401).json({
+            message: "Invalid authentication"
+        });
+    }
+});
 // Dashboard
 router.get("/dashboard", async (req, res) => {
     try {

@@ -27,28 +27,8 @@ app.get("/api/nepse-index", async (req, res) => {
             "http://localhost:8000/NepseIndex"
         );
 
-        const nepse = response.data["NEPSE Index"];
-
-        if (!nepse) {
-            return res.status(404).json({
-                error: "NEPSE Index not found"
-            });
-        }
-
-        const index = nepse.close;
-        const previousClose = nepse.previousClose;
-        const change = index - previousClose;
-        const changePercent = (change / previousClose) * 100;
-
-        res.json({
-            index: Number(index.toFixed(2)),
-            change: Number(change.toFixed(2)),
-            changePercent: Number(changePercent.toFixed(2)),
-            high: nepse.high,
-            low: nepse.low,
-            previousClose: previousClose,
-            generatedTime: nepse.generatedTime
-        });
+        
+    res.json(response.data);
 
     } catch (error) {
         console.error(error.message);
