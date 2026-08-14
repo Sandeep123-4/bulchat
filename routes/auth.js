@@ -275,6 +275,8 @@ router.get("/chat", async (req, res) => {
             .sort({ createdAt: 1 })
             .limit(100);
 
+        res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+
         res.render("chat", {
             user,
             messages
