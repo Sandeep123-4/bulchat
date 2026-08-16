@@ -7,6 +7,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const path = require("path");
 const axios = require("axios");
+const compression = require("compression");
 
 dotenv.config();
 
@@ -15,11 +16,22 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // Middleware
+app.use(compression());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(
+    express.static(path.join(__dirname, "public"), {
+        maxAge: "1d",
+        setHeaders(res, filePath) {
+            // Uploaded files have unique names, safe to cache forever
+            if (filePath.includes(path.sep + "uploads" + path.sep)) {
+                res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+            }
+        }
+    })
+);
 
 app.get("/api/nepse-index", async (req, res) => {
     try {

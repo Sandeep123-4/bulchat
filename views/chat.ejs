@@ -557,7 +557,7 @@ font-size:13px;
 <div class="sidebar">
 
 <div class="logo">
-<img class="logo-img" src="/img/logo.svg" alt="Mudraaa">
+<img class="logo-img" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
 </div>
 
 <div class="side-label">Channel</div>
@@ -700,7 +700,7 @@ function avatarHTML(name, imgUrl) {
     const initials = String(name || "?").slice(0, 2).toUpperCase();
 
     return imgUrl
-        ? `<img src="${imgUrl}" alt="">`
+        ? `<img src="${imgUrl}" alt="" loading="lazy">`
         : initials;
 }
 
