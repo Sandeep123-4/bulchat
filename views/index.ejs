@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
      crossorigin="anonymous"></script>
-<title>BullChat | Live NEPSE Market Intelligence</title>
+<title>Mudraaa | Live NEPSE Market Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,6 +54,13 @@ body{
 .logo{
     font-size:24px;
     font-weight:800;
+    display:flex;
+    align-items:center;
+}
+.logo-img{
+    height:42px;
+    width:auto;
+    display:block;
 }
 .logo span{
     color:#2EA043;
@@ -101,26 +108,38 @@ body{
     color:var(--text);
 }
 .hero{
+    position:relative;
     text-align:center;
-    padding:70px 20px 30px;
-    max-width:900px;
+    padding:140px 20px 100px;
+    max-width:1200px;
     margin:0 auto;
+    min-height:600px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background-image:url('/img/Untitled%20design.png');
+    background-repeat:no-repeat;
+    background-position:center top;
+    background-size:100% auto;
 }
-.hero h1{
-    font-size:46px;
+.hero h1{    font-size:46px;
     font-weight:800;
     line-height:1.15;
     margin-bottom:18px;
+    color:#fff;
+    text-shadow:0 2px 8px rgba(0,0,0,.5),0 0 30px rgba(0,0,0,.35);
 }
 .hero h1 span{
-    color:#2EA043;
+    color:#3FB950;
 }
 .hero p{
     font-size:17px;
-    color:var(--muted);
+    color:rgba(255,255,255,.92);
     line-height:1.7;
     max-width:640px;
     margin:0 auto 34px;
+    text-shadow:0 1px 4px rgba(0,0,0,.5);
 }
 .hero-btns{
     display:flex;
@@ -131,6 +150,14 @@ body{
 .hero-btns .btn{
     font-size:16px;
     padding:14px 34px;
+}
+.hero-btns .btn-ghost{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.6);
+    color:#fff;
+}
+.hero-btns .btn-ghost:hover{
+    background:rgba(255,255,255,.25);
 }
 .market{
     max-width:1200px;
@@ -268,6 +295,11 @@ body{
 }
 @media(max-width:900px){
     .market,.features{grid-template-columns:1fr;}
+    .hero{
+        padding:90px 20px 60px;
+        background-size:cover;
+        background-position:center;
+    }
     .hero h1{font-size:34px;}
     .navbar{padding:16px 20px;}
     .market,.chart-section{padding:0 20px;}
@@ -279,7 +311,10 @@ body{
         gap:14px;
         padding:16px 20px;
     }
-    .logo{text-align:center;}
+    .logo{
+        text-align:center;
+        justify-content:center;
+    }
     .nav-links{
         justify-content:center;
         gap:8px;
@@ -291,16 +326,24 @@ body{
         min-width:0;
     }
     .hero{
-        padding:40px 20px 20px;
+        padding:70px 20px 50px;
+        min-height:0;
+        background-image:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55)),url('/img/Untitled%20design.png');
+        background-size:cover;
+        background-position:center;
     }
     .hero h1{
         font-size:26px;
+        margin-bottom:14px;
     }
     .hero p{
         font-size:15px;
+        margin-bottom:26px;
     }
     .hero-btns{
         flex-direction:column;
+        width:100%;
+        max-width:320px;
     }
     .hero-btns .btn{
         width:100%;
@@ -355,7 +398,9 @@ body{
 <body class="light-theme">
 
 <nav class="navbar">
-    <div class="logo">Bull<span>Chat</span></div>
+    <a class="logo" href="/" aria-label="Mudraaa home">
+        <img class="logo-img" src="/img/logo.svg" alt="Mudraaa">
+    </a>
     <div class="nav-links">
         <button id="langBtn" class="btn btn-ghost btn-sm">नेपाली</button>
         <button id="themeBtn" class="btn btn-ghost btn-sm"></button>
@@ -394,7 +439,7 @@ body{
         </div>
     </div>
     <div class="card">
-        <div class="card-title" data-i18n="cardWhy">Why BullChat?</div>
+        <div class="card-title" data-i18n="cardWhy">Why Mudraaa?</div>
         <p class="card-text" data-i18n="whyText" style="font-size:14px;color:var(--muted);line-height:1.7;">
             Real-time market overview, interactive index charts, sub-indices at a glance, and a premium investor chat room — all in one clean dashboard.
         </p>
@@ -435,7 +480,7 @@ body{
     </div>
 </section>
 
-<footer class="footer" data-i18n="footer">BullChat &copy; 2026. NEPSE data provided for informational purposes only.
+<footer class="footer" data-i18n="footer">Mudraaa &copy; 2026. NEPSE data provided for informational purposes only.
 </footer>
 
 <script src="/js/chart.js"></script>
@@ -453,7 +498,7 @@ const translations = {
         statChange: "Change",
         statHigh: "High",
         statLow: "Low",
-        cardWhy: "Why BullChat?",
+        cardWhy: "Why Mudraaa?",
         whyText: "Real-time market overview, interactive index charts, sub-indices at a glance, and a premium investor chat room — all in one clean dashboard.",
         cardStart: "Get Started",
         startText: "Create your account in seconds and unlock the full NEPSE experience.",
@@ -465,7 +510,7 @@ const translations = {
         featChartsText: "Explore index trends and per-stock price graphs with clean, readable visualizations.",
         featCommunity: "Investor Community",
         featCommunityText: "Join the chat room, share market ideas and suggestions with fellow traders.",
-        footer: "BullChat &copy; 2026. NEPSE data provided for informational purposes only."
+        footer: "Mudraaa &copy; 2026. NEPSE data provided for informational purposes only."
     },
     ne: {
         navLogin: "लग इन",
@@ -478,7 +523,7 @@ const translations = {
         statChange: "परिवर्तन",
         statHigh: "उच्च",
         statLow: "निम्न",
-        cardWhy: "किन BullChat?",
+        cardWhy: "किन Mudraaa?",
         whyText: "वास्तविक-समय बजार अवलोकन, अन्तरक्रियात्मक सूचकाङ्क चार्टहरू, सब-सूचकाङ्कहरू एकै नजरमा, र प्रिमियम लगानीकर्ता च्याट रुम — सबै एकै सफा ड्यासबोर्डमा।",
         cardStart: "सुरु गर्नुहोस्",
         startText: "केही सेकेन्डमा आफ्नो खाता खोल्नुहोस् र पूर्ण नेप्से अनुभव अनलक गर्नुहोस्।",
@@ -490,7 +535,7 @@ const translations = {
         featChartsText: "सूचकाङ्क प्रवृत्ति र प्रति-स्टक मूल्य ग्राफहरू सफा, पढ्न मिल्ने भिजुअलाइजेसनसहित अन्वेषण गर्नुहोस्।",
         featCommunity: "लगानीकर्ता समुदाय",
         featCommunityText: "च्याट रुममा सामेल हुनुहोस्, सँगी व्यापारीहरूसँग बजार विचार र सुझावहरू साझा गर्नुहोस्।",
-        footer: "BullChat &copy; 2026. जानकारीमूलक उद्देश्यका लागि मात्र नेप्से डाटा प्रदान गरिएको छ।"
+        footer: "Mudraaa &copy; 2026. जानकारीमूलक उद्देश्यका लागि मात्र नेप्से डाटा प्रदान गरिएको छ।"
     }
 };
 
