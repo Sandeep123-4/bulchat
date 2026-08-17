@@ -846,36 +846,4 @@ const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-
-    // Server-side NEPSE polling — broadcasts 5-point changes to ALL users
-    let lastNepseValue = null;
-
-    async function pollNepseIndex() {
-        try {
-            const response = await axios.get("http://localhost:8000/NepseIndex", { timeout: 10000 });
-            const currentValue = Number(response.data["NEPSE Index"].currentValue);
-
-            if (isNaN(currentValue)) {
-                console.error("NEPSE poller: received invalid currentValue, skipping this cycle");
-                return;
-            }
-
-            if (lastNepseValue !== null && !isNaN(lastNepseValue)) {
-                const diff = currentValue - lastNepseValue;
-                if (Math.abs(diff) >= 5) {
-                    const direction = diff > 0 ? "up" : "down";
-                    const msg = "NEPSE moved " + direction + " " + Math.abs(diff).toFixed(2) + " points! Now at " + currentValue.toFixed(2);
-                    io.emit("nepse-alert", { message: msg, value: currentValue, change: diff });
-                    console.log("📊 NEPSE ALERT:", msg);
-                }
-            }
-            lastNepseValue = currentValue;
-        } catch (err) {
-            console.error("NEPSE poller error:", err.message || err);
-        }
-    }
-
-    // Poll every 10 seconds
-    setInterval(pollNepseIndex, 10000);
-    pollNepseIndex();
 });

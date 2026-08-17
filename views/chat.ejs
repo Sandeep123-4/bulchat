@@ -4,7 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
      crossorigin="anonymous"></script>
 
@@ -100,11 +100,10 @@ Send
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="/js/notifications.js"></script>
 
 <script>
 
-const socket = window.notificationSocket || io();
+const socket = io();
 
 const username = "<%= user.username %>";
 const myAvatar = "<%= user.avatar ? '/uploads/' + user.avatar : '' %>";
