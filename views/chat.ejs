@@ -100,6 +100,7 @@ Send
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/notifications.js"></script>
 
 <script>
 
@@ -210,6 +211,10 @@ socket.on("chat message", data => {
 
     messages.appendChild(createMessageHTML(data, mine));
     messages.scrollTop = messages.scrollHeight;
+
+    if (!mine && window.showBrowserNotification) {
+        window.showBrowserNotification(data.username + " says:", data.message);
+    }
 });
 
 socket.on("online", list => {
