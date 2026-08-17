@@ -73,10 +73,30 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-image: url('/img/hero-bg.jpg');
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: 100% auto;
+    overflow: hidden;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
+}
+.hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+.hero > *:not(.hero-video) {
+    position: relative;
+    z-index: 2;
 }
 .hero h1 {
     font-size: 46px;
@@ -275,8 +295,6 @@ body {
     .market, .features { grid-template-columns: 1fr; }
     .hero {
         padding: 90px 20px 60px;
-        background-size: cover;
-        background-position: center;
     }
     .hero h1 { font-size: 34px; }
     .navbar { padding: 16px 20px; }
@@ -296,9 +314,6 @@ body {
     .hero {
         padding: 70px 20px 50px;
         min-height: 0;
-        background-image: linear-gradient(180deg, rgba(0, 0, 0, .35), rgba(0, 0, 0, .55)), url('/img/hero-bg.jpg');
-        background-size: cover;
-        background-position: center;
     }
     .hero h1 { font-size: 26px; margin-bottom: 14px; }
     .hero p { font-size: 15px; margin-bottom: 26px; }
