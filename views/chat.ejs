@@ -141,7 +141,7 @@ applyChatTheme();
 // Mobile: keep the input bar visible above the keyboard / browser bars
 function syncViewportHeight() {
     if (window.visualViewport) {
-        document.documentElement.style.setProperty("--vh", window.visualViewport.height + "px");
+        document.body.style.height = window.visualViewport.height + "px";
     }
 }
 
