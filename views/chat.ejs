@@ -14,7 +14,7 @@
 
 <link rel="stylesheet" href="/css/base.css">
 <link rel="stylesheet" href="/css/chat.css">
-
+<meta name="username" content="<%= user.username %>">
 </head>
 
 <body>
@@ -104,7 +104,7 @@ Send
 
 <script>
 
-const socket = io();
+const socket = window.notificationSocket || io();
 
 const username = "<%= user.username %>";
 const myAvatar = "<%= user.avatar ? '/uploads/' + user.avatar : '' %>";
@@ -142,7 +142,7 @@ applyChatTheme();
 // Mobile: keep the input bar visible above the keyboard / browser bars
 function syncViewportHeight() {
     if (window.visualViewport) {
-        document.body.style.height = window.visualViewport.height + "px";
+        document.documentElement.style.setProperty("--vh", window.visualViewport.height + "px");
     }
 }
 
@@ -156,8 +156,12 @@ syncViewportHeight();
 input.addEventListener("focus", () => {
     setTimeout(() => {
         syncViewportHeight();
-        input.scrollIntoView({ block: "end" });
-    }, 250);
+        input.scrollIntoView({ block: "end", behavior: "smooth" });
+    }, 300);
+});
+
+input.addEventListener("blur", () => {
+    setTimeout(syncViewportHeight, 100);
 });
 
 socket.emit("join", username);
@@ -211,10 +215,6 @@ socket.on("chat message", data => {
 
     messages.appendChild(createMessageHTML(data, mine));
     messages.scrollTop = messages.scrollHeight;
-
-    if (!mine && window.showBrowserNotification) {
-        window.showBrowserNotification(data.username + " says:", data.message);
-    }
 });
 
 socket.on("online", list => {

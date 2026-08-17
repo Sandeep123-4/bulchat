@@ -1,7 +1,9 @@
 const express = require("express");
 const Message = require("./models/Message");
+const User = require("./models/user");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -771,13 +773,19 @@ app.get("/stock/:symbol", async (req, res) => {
     try {
         const symbol = req.params.symbol;
 
+        const token = req.cookies.token;
+        if (!token) return res.redirect("/login");
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+
         res.render("stock", {
-            symbol: symbol
+            symbol: symbol,
+            user: user
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Unable to load stock");
+        return res.status(404).send("Page not found");
     }
 });
 
@@ -847,7 +855,12 @@ server.listen(PORT, () => {
             const response = await axios.get("http://localhost:8000/NepseIndex", { timeout: 10000 });
             const currentValue = Number(response.data["NEPSE Index"].currentValue);
 
-            if (lastNepseValue !== null) {
+            if (isNaN(currentValue)) {
+                console.error("NEPSE poller: received invalid currentValue, skipping this cycle");
+                return;
+            }
+
+            if (lastNepseValue !== null && !isNaN(lastNepseValue)) {
                 const diff = currentValue - lastNepseValue;
                 if (Math.abs(diff) >= 5) {
                     const direction = diff > 0 ? "up" : "down";
@@ -858,7 +871,7 @@ server.listen(PORT, () => {
             }
             lastNepseValue = currentValue;
         } catch (err) {
-            // Silently skip — NEPSE API might be down
+            console.error("NEPSE poller error:", err.message || err);
         }
     }
 
