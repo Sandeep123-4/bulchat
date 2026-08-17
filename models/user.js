@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     password: String,
     premium: {
         type: Boolean,
-        default: false
+        default:true
     },
     avatar: {
         type: String,
