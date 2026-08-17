@@ -288,6 +288,46 @@ router.get("/chat", async (req, res) => {
     }
 });
 
+// Commodities
+router.get("/commodities", async (req, res) => {
+    try {
+        const token = req.cookies.token;
+
+        if (!token) return res.redirect("/login");
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await User.findById(decoded.id);
+
+        if (!user) return res.redirect("/login");
+
+        res.render("commodities", { user });
+    } catch (err) {
+        console.error(err);
+        res.redirect("/login");
+    }
+});
+
+// Crypto
+router.get("/crypto", async (req, res) => {
+    try {
+        const token = req.cookies.token;
+
+        if (!token) return res.redirect("/login");
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await User.findById(decoded.id);
+
+        if (!user) return res.redirect("/login");
+
+        res.render("crypto", { user });
+    } catch (err) {
+        console.error(err);
+        res.redirect("/login");
+    }
+});
+
 // Logout
 router.get("/logout", (req, res) => {
     res.clearCookie("token");

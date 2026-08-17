@@ -1,0 +1,46 @@
+/* Mudraaa Base Styles - Shared across all pages */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ===== CSS Variables ===== */
+:root {
+    --bg: linear-gradient(180deg, #f5f7fa 0%, #eef1f5 100%);
+    --card-bg: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --shadow: 1px 1px 10px rgba(0, 0, 0, .08);
+    --ghost-border: #d1d5db;
+    --ghost-hover: #e5e7eb;
+    --stat-bg: #f0f2f5;
+}
+
+body.dark-theme {
+    --bg: linear-gradient(180deg, #0D1117 0%, #10161f 100%);
+    --card-bg: #161B22;
+    --border: #2D333B;
+    --text: #ffffff;
+    --muted: #8b949e;
+    --shadow: 0 4px 20px rgba(0, 0, 0, .25);
+    --ghost-border: #2D333B;
+    --ghost-hover: #21262d;
+    --stat-bg: rgba(255, 255, 255, .04);
+}
+
+/* ===== Reset ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ===== Utility Classes ===== */
+.positive { color: #16a34a; }
+.negative { color: #dc2626; }

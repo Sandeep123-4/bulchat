@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
+     crossorigin="anonymous"></script>
+    <title>Crypto | Mudraaa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/crypto.css">
+</head>
+<body>
+
+<div class="page">
+
+    <div class="topbar">
+        <a class="back-link" href="/dashboard">&larr; Back to Dashboard</a>
+        <button class="theme-toggle" id="themeToggle">Dark Mode</button>
+    </div>
+
+    <div class="page-title">Crypto</div>
+    <div class="page-subtitle">Top 50 cryptocurrencies by 24h volume &mdash; live from Binance</div>
+
+    <div class="summary-row" id="summaryRow" style="display:none;">
+        <div class="summary-card">
+            <div class="summary-label">Total 24h Volume</div>
+            <div class="summary-value" id="totalVol">--</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Top Gainer</div>
+            <div class="summary-value green" id="topGainer">--</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Top Loser</div>
+            <div class="summary-value red" id="topLoser">--</div>
+        </div>
+    </div>
+
+    <input type="text" class="search-bar" id="searchInput" placeholder="Search by name or symbol...">
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div id="loadingState" class="loading">
+            <div class="spinner"></div>
+            Fetching crypto data from Binance...
+        </div>
+
+        <div id="errorState" class="error-msg" style="display:none;"></div>
+
+        <div class="table-wrap" id="tableWrap" style="display:none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-col="rank">#</th>
+                        <th data-col="symbol">Coin</th>
+                        <th data-col="price">Price</th>
+                        <th data-col="change24h">24h %</th>
+                        <th data-col="high24h">24h High</th>
+                        <th data-col="low24h">24h Low</th>
+                        <th data-col="volume">24h Volume</th>
+                        <th data-col="trades">Trades</th>
+                    </tr>
+                </thead>
+                <tbody id="cryptoBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="chart-overlay" id="chartOverlay">
+    <div class="chart-modal">
+        <div class="chart-header">
+            <div class="chart-header-left">
+                <div>
+                    <div class="chart-title" id="chartCoinName">--</div>
+                    <div class="chart-subtitle" id="chartCoinPrice">--</div>
+                </div>
+            </div>
+            <button class="chart-close" id="chartClose">&times;</button>
+        </div>
+        <div class="chart-timeframes">
+            <button class="tf-btn active" data-tf="1h">1H</button>
+            <button class="tf-btn" data-tf="4h">4H</button>
+            <button class="tf-btn" data-tf="1d">1D</button>
+            <button class="tf-btn" data-tf="1w">1W</button>
+        </div>
+        <div class="chart-body" id="chartBody">
+            <div class="chart-loading" id="chartLoading">
+                <div class="spinner"></div>
+                Loading chart...
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/js/crypto.js"></script>
+
+</body>
+</html>

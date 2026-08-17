@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
+     crossorigin="anonymous"></script>
+    <title>Commodities | Mudraaa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/commodities.css">
+</head>
+
+<body>
+
+<div class="page">
+
+    <div class="topbar">
+        <a class="back-link" href="/dashboard">&larr; Back to Dashboard</a>
+        <button class="theme-toggle" id="themeToggle">Dark Mode</button>
+    </div>
+
+    <div class="page-title">Commodities</div>
+    <div class="page-subtitle">Live commodity prices</div>
+
+    <div class="summary-row" id="summaryRow" style="display:none;">
+        <div class="summary-card">
+            <div class="summary-label">Gainers</div>
+            <div class="summary-value up" id="summaryGainers">0</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Losers</div>
+            <div class="summary-value down" id="summaryLosers">0</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Unchanged</div>
+            <div class="summary-value neutral" id="summaryFlat">0</div>
+        </div>
+    </div>
+
+    <div id="loadingState" class="loading">
+        <div class="spinner"></div>
+        Fetching commodity data...
+    </div>
+
+    <div id="errorState" class="error-msg" style="display:none;"></div>
+
+    <div class="commodities-grid" id="commoditiesGrid"></div>
+
+</div>
+
+<div class="chart-overlay" id="chartOverlay">
+    <div class="chart-modal">
+        <div class="chart-header">
+            <div class="chart-header-left">
+                <div>
+                    <div class="chart-title" id="chartName">--</div>
+                    <div class="chart-subtitle" id="chartPrice">--</div>
+                </div>
+            </div>
+            <button class="chart-close" id="chartClose">&times;</button>
+        </div>
+        <div class="chart-timeframes">
+            <button class="tf-btn active" data-range="1d">1D</button>
+            <button class="tf-btn" data-range="1mo">1M</button>
+            <button class="tf-btn" data-range="3mo">3M</button>
+            <button class="tf-btn" data-range="6mo">6M</button>
+            <button class="tf-btn active" data-range="1y">1Y</button>
+            <button class="tf-btn" data-range="2y">2Y</button>
+            <button class="tf-btn" data-range="3y">3Y</button>
+            <button class="tf-btn" data-range="5y">5Y</button>
+        </div>
+        <div class="chart-body" id="chartBody">
+            <div class="chart-loading" id="chartLoading">
+                <div class="spinner"></div>
+                Loading chart...
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/js/commodities.js"></script>
+
+</body>
+</html>
