@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+dotenv.config();
 const http = require("http");
 const { Server } = require("socket.io");
 const path = require("path");
@@ -15,7 +16,7 @@ const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 const YahooFinance = require("yahoo-finance2").default;
 const yahooFinance = new YahooFinance();
-dotenv.config();
+
 
 const PRICE_HISTORY_DIR = path.join(__dirname, "data");
 const PRICE_HISTORY_FILE = path.join(PRICE_HISTORY_DIR, "price-history.json");
