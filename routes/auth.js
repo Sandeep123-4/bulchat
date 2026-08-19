@@ -174,7 +174,7 @@ router.post("/api/verify-otp", async (req, res) => {
                 <html>
                 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
                 <body style="margin:0;padding:0;background:#f4f5f7;font-family:Inter,Helvetica,Arial,sans-serif;">
-                <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+                <div style="width:100%;margin:0 auto;padding:4px 2px;">
 
                     <!-- Header -->
                     <div style="text-align:center;margin-bottom:36px;">
@@ -183,7 +183,7 @@ router.post("/api/verify-otp", async (req, res) => {
                     </div>
 
                     <!-- Main Card -->
-                    <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:40px 36px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                    <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:4px 3px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
 
                         <!-- Welcome Banner -->
                         <div style="background:linear-gradient(135deg,#2EA043 0%,#1a7a30 100%);border-radius:12px;padding:28px 24px;text-align:center;margin-bottom:32px;">
