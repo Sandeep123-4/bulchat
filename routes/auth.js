@@ -74,7 +74,7 @@ router.post("/api/send-otp", async (req, res) => {
 
         try {
             const emailHtml = `
-                    <div style="font-family:Inter,sans-serif;max-width:440px;margin:0 auto;padding:40px 20px;">
+                    <div style="font-family:Inter,sans-serif;width:100%;margin:0 auto;padding:4px 2px;">
                         <div style="text-align:center;margin-bottom:32px;">
                             <img
   src="https://mudraaa.tech/img/logo.png"
@@ -85,12 +85,12 @@ router.post("/api/send-otp", async (req, res) => {
 >
                             <span style="font-size:22px;font-weight:700;color:#111827;letter-spacing:-0.5px;">Mudraaa</span>
                         </div>
-                        <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px 28px;">
+                        <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:3px 2px;">
                             <h2 style="color:#111827;font-size:20px;margin:0 0 8px;text-align:center;">Verify your email</h2>
                             <p style="color:#6b7280;font-size:14px;margin:0 0 28px;text-align:center;line-height:1.5;">
                                 Use the following OTP to complete your Mudraaa signup. This code expires in <strong>10 minutes</strong>.
                             </p>
-                            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+                            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:2px 2px;margin-bottom:28px;">
                                 <p style="margin:0;text-align:center;font-family:monospace;font-size:36px;font-weight:800;letter-spacing:12px;color:#2EA043;user-select:all;-webkit-user-select:all;">${otp}</p>
                             </div>
                             <p style="color:#9ca3af;font-size:12px;text-align:center;margin:0;line-height:1.5;">
@@ -167,6 +167,126 @@ router.post("/api/verify-otp", async (req, res) => {
         });
 
         await Otp.deleteMany({ email });
+
+        try {
+            const welcomeHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+                <body style="margin:0;padding:0;background:#f4f5f7;font-family:Inter,Helvetica,Arial,sans-serif;">
+                <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+
+                    <!-- Header -->
+                    <div style="text-align:center;margin-bottom:36px;">
+                        <img src="https://mudraaa.tech/img/logo.png" alt="Mudraaa" width="56" height="56" style="border-radius:14px;display:block;margin:0 auto 14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);">
+                        <span style="font-size:22px;font-weight:800;color:#111827;letter-spacing:-0.5px;">Mudraaa</span>
+                    </div>
+
+                    <!-- Main Card -->
+                    <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:40px 36px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+
+                        <!-- Welcome Banner -->
+                        <div style="background:linear-gradient(135deg,#2EA043 0%,#1a7a30 100%);border-radius:12px;padding:28px 24px;text-align:center;margin-bottom:32px;">
+                            <h1 style="color:#ffffff;font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-0.5px;">Welcome to Mudraaa!</h1>
+                            <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:0;">We're glad to have you with us</p>
+                        </div>
+
+                        <p style="color:#374151;font-size:15px;line-height:1.7;margin:0 0 28px;">
+                            Hi <strong>${username}</strong>,
+                        </p>
+                        <p style="color:#6b7280;font-size:14px;line-height:1.7;margin:0 0 32px;">
+                            Thank you for joining Mudraaa. You now have access to Nepal's stock market data, alerts, and community — all in one place.
+                        </p>
+
+                        <!-- Features Section -->
+                        <div style="margin-bottom:32px;">
+                            <h3 style="color:#111827;font-size:15px;font-weight:700;margin:0 0 16px;text-transform:uppercase;letter-spacing:0.5px;">What you can do</h3>
+
+                            <!-- Feature 1 -->
+                            <div style="background:#f9fafb;border:1px solid #f0f0f0;border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+                                <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+                                    <td width="40" valign="top" style="padding-right:14px;">
+                                        <div style="width:36px;height:36px;background:#e8f5e9;border-radius:8px;text-align:center;line-height:36px;font-size:18px;">📈</div>
+                                    </td>
+                                    <td valign="top">
+                                        <p style="margin:0 0 2px;color:#111827;font-size:14px;font-weight:600;">NEPSE Market Data</p>
+                                        <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.5;">Track live market info, stock prices, and key movements.</p>
+                                    </td>
+                                </tr></table>
+                            </div>
+
+                            <!-- Feature 2 -->
+                            <div style="background:#f9fafb;border:1px solid #f0f0f0;border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+                                <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+                                    <td width="40" valign="top" style="padding-right:14px;">
+                                        <div style="width:36px;height:36px;background:#fff3e0;border-radius:8px;text-align:center;line-height:36px;font-size:18px;">🔔</div>
+                                    </td>
+                                    <td valign="top">
+                                        <p style="margin:0 0 2px;color:#111827;font-size:14px;font-weight:600;">Stock Alerts</p>
+                                        <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.5;">Get notified about important stock and market updates.</p>
+                                    </td>
+                                </tr></table>
+                            </div>
+
+                            <!-- Feature 3 -->
+                            <div style="background:#f9fafb;border:1px solid #f0f0f0;border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+                                <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+                                    <td width="40" valign="top" style="padding-right:14px;">
+                                        <div style="width:36px;height:36px;background:#e3f2fd;border-radius:8px;text-align:center;line-height:36px;font-size:18px;">💬</div>
+                                    </td>
+                                    <td valign="top">
+                                        <p style="margin:0 0 2px;color:#111827;font-size:14px;font-weight:600;">Chat & Community</p>
+                                        <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.5;">Connect and discuss the Nepal stock market with others.</p>
+                                    </td>
+                                </tr></table>
+                            </div>
+
+                            <!-- Feature 4 -->
+                            <div style="background:#f9fafb;border:1px solid #f0f0f0;border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+                                <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+                                    <td width="40" valign="top" style="padding-right:14px;">
+                                        <div style="width:36px;height:36px;background:#f3e5f5;border-radius:8px;text-align:center;line-height:36px;font-size:18px;">📰</div>
+                                    </td>
+                                    <td valign="top">
+                                        <p style="margin:0 0 2px;color:#111827;font-size:14px;font-weight:600;">Market Updates</p>
+                                        <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.5;">Stay up to date with Nepal stock market news.</p>
+                                    </td>
+                                </tr></table>
+                            </div>
+                        </div>
+
+                        <!-- CTA Button -->
+                        <div style="text-align:center;margin-bottom:28px;">
+                            <a href="https://mudraaa.tech/dashboard" style="display:inline-block;background:#2EA043;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:10px;letter-spacing:0.3px;">Go to Dashboard →</a>
+                        </div>
+
+                        <div style="border-top:1px solid #f0f0f0;padding-top:24px;">
+                            <p style="color:#9ca3af;font-size:13px;line-height:1.6;margin:0;text-align:center;">
+                                We're continuously working on new features to make your experience even better.<br>Have questions? Just reply to this email.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="text-align:center;margin-top:32px;padding:20px;">
+                        <p style="color:#9ca3af;font-size:12px;margin:0 0 4px;">Mudraaa — Real-time market intelligence</p>
+                        <p style="color:#d1d5db;font-size:11px;margin:0;">Explore. Connect. Stay Informed.</p>
+                    </div>
+
+                </div>
+                </body>
+                </html>
+            `;
+
+            await resend.emails.send({
+                from: process.env.RESEND_FROM || "Mudraaa <onboarding@resend.dev>",
+                to: email,
+                subject: "Welcome to Mudraaa! 🎉",
+                html: welcomeHtml
+            });
+        } catch (welcomeErr) {
+            console.error("WELCOME EMAIL ERROR:", welcomeErr);
+        }
 
         res.json({ success: true, message: "Account created successfully" });
     } catch (err) {
