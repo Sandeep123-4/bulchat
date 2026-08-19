@@ -15,6 +15,7 @@ const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 const YahooFinance = require("yahoo-finance2").default;
 const yahooFinance = new YahooFinance();
+dotenv.config();
 
 const PRICE_HISTORY_DIR = path.join(__dirname, "data");
 const PRICE_HISTORY_FILE = path.join(PRICE_HISTORY_DIR, "price-history.json");
@@ -60,7 +61,7 @@ function cacheStockOHLCV(symbol, ohlcv) {
     savePriceHistory(history);
 }
 
-dotenv.config();
+
 
 const app = express();
 const server = http.createServer(app);
