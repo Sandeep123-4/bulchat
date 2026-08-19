@@ -873,21 +873,30 @@ app.post(BROADCAST_PATH, async (req, res) => {
         for (const user of users) {
             try {
                 const emailHtml = `
-                    <div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;">
-                        <div style="text-align:center;margin-bottom:28px;">
-                            <img src="https://mudraaa.tech/img/logo.png" alt="Mudraaa" width="48" height="48" style="border-radius:12px;display:block;margin:0 auto 10px;">
-                            <span style="font-size:18px;font-weight:700;color:#111827;">Mudraaa</span>
+                    <!DOCTYPE html>
+                    <html>
+                    <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+                    <body style="margin:0;padding:0;background:#f4f5f7;font-family:Inter,Helvetica,Arial,sans-serif;">
+                    <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+                        <div style="text-align:center;margin-bottom:32px;">
+                            <img src="https://mudraaa.tech/img/logo.png" alt="Mudraaa" width="52" height="52" style="border-radius:14px;display:block;margin:0 auto 12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                            <span style="font-size:20px;font-weight:800;color:#111827;letter-spacing:-0.3px;">Mudraaa</span>
                         </div>
-                        <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;padding:32px 28px;">
-                            <h2 style="color:#111827;font-size:18px;margin:0 0 16px;text-align:center;">${subject}</h2>
-                            <div style="color:#374151;font-size:14px;line-height:1.7;">
+                        <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:36px 32px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                            <div style="border-bottom:1px solid #f0f0f0;padding-bottom:20px;margin-bottom:24px;">
+                                <h2 style="color:#111827;font-size:20px;font-weight:700;margin:0;text-align:center;letter-spacing:-0.3px;">${subject}</h2>
+                            </div>
+                            <div style="color:#374151;font-size:15px;line-height:1.8;word-wrap:break-word;">
                                 ${body}
                             </div>
                         </div>
-                        <p style="color:#d1d5db;font-size:11px;text-align:center;margin:24px 0 0;">
-                            Mudraaa &mdash; Real-time market intelligence
-                        </p>
+                        <div style="text-align:center;margin-top:32px;padding:20px;">
+                            <p style="color:#9ca3af;font-size:12px;margin:0 0 6px;">Mudraaa &mdash; Real-time market intelligence</p>
+                            <p style="color:#d1d5db;font-size:11px;margin:0;">You received this because you have a Mudraaa account.</p>
+                        </div>
                     </div>
+                    </body>
+                    </html>
                 `;
 
                 await resend.emails.send({
