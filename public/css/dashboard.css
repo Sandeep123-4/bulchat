@@ -45,6 +45,7 @@ body {
     color: var(--d-text);
     display: flex;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     transition: background 0.2s ease, color 0.2s ease;
 }
@@ -819,6 +820,7 @@ body {
         left: 0;
         top: 0;
         height: 100vh;
+        height: 100dvh;
         transform: translateX(-100%);
         box-shadow: none;
     }

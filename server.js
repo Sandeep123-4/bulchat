@@ -11,6 +11,8 @@ const path = require("path");
 const axios = require("axios");
 const compression = require("compression");
 const fs = require("fs");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 const YahooFinance = require("yahoo-finance2").default;
 const yahooFinance = new YahooFinance();
 
@@ -833,6 +835,81 @@ app.get("/api/global-prices", async (req, res) => {
     } catch (error) {
         console.log("Global prices error:", error.message);
         res.status(500).json({ error: "Unable to fetch global prices" });
+    }
+});
+
+// Broadcast Email
+const BROADCAST_PATH = "/S@&deepKh@&al/broaecastEmail";
+
+app.get(BROADCAST_PATH, async (req, res) => {
+    try {
+        const userCount = await User.countDocuments();
+        res.render("broadcast", { userCount });
+    } catch (err) {
+        console.error("Broadcast page error:", err);
+        res.status(500).send("Error loading broadcast page");
+    }
+});
+
+app.post(BROADCAST_PATH, async (req, res) => {
+    try {
+        const { subject, body } = req.body;
+
+        if (!subject || !body) {
+            return res.status(400).json({ error: "Subject and body are required." });
+        }
+
+        const users = await User.find({}, { email: 1 }).lean();
+
+        if (users.length === 0) {
+            return res.json({ success: true, message: "No users to send to." });
+        }
+
+        let sent = 0;
+        let failed = 0;
+
+        for (const user of users) {
+            try {
+                const emailHtml = `
+                    <div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;">
+                        <div style="text-align:center;margin-bottom:28px;">
+                            <img src="https://mudraaa.tech/img/logo.png" alt="Mudraaa" width="48" height="48" style="border-radius:12px;display:block;margin:0 auto 10px;">
+                            <span style="font-size:18px;font-weight:700;color:#111827;">Mudraaa</span>
+                        </div>
+                        <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;padding:32px 28px;">
+                            <h2 style="color:#111827;font-size:18px;margin:0 0 16px;text-align:center;">${subject}</h2>
+                            <div style="color:#374151;font-size:14px;line-height:1.7;">
+                                ${body}
+                            </div>
+                        </div>
+                        <p style="color:#d1d5db;font-size:11px;text-align:center;margin:24px 0 0;">
+                            Mudraaa &mdash; Real-time market intelligence
+                        </p>
+                    </div>
+                `;
+
+                await resend.emails.send({
+                    from: process.env.RESEND_FROM || "Mudraaa <onboarding@resend.dev>",
+                    to: user.email,
+                    subject: subject,
+                    html: emailHtml
+                });
+
+                sent++;
+            } catch (emailErr) {
+                console.error(`Broadcast email failed for ${user.email}:`, emailErr.message);
+                failed++;
+            }
+        }
+
+        const msg = `Done! Sent to ${sent} user${sent === 1 ? "" : "s"}` + (failed ? `, ${failed} failed.` : ".");
+
+        console.log(`[BROADCAST] ${msg}`);
+        res.json({ success: true, message: msg });
+
+    } catch (err) {
+        console.error("Broadcast error:", err);
+        res.status(500).json({ error: "Failed to send broadcast." });
     }
 });
 

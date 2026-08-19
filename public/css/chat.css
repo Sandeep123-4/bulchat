@@ -2,6 +2,7 @@
 
 .chat-main {
     flex-direction: column;
+    overflow: hidden;
 }
 
 .chat-layout {
