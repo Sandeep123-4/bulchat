@@ -1,94 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
-     crossorigin="anonymous"></script>
-    <title><%= symbol %> - Stock | Mudraaa</title>
-    <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/stock.css">
-    <meta name="username" content="<%= user.username %>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
+ crossorigin="anonymous"></script>
+<title><%= symbol %> - Stock | Mudraaa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+<link rel="stylesheet" href="/css/stock.css">
+<meta name="username" content="<%= user.username %>">
 </head>
 
 <body data-symbol="<%= symbol %>">
 
-<div class="page">
+<!-- ===== SIDEBAR OVERLAY (mobile) ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <div class="topbar">
-        <a class="back-link" href="/dashboard">&larr; Back to Dashboard</a>
-        <button class="theme-toggle" id="themeToggle">Dark Mode</button>
-    </div>
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+    <div class="sidebar-inner">
+        <div class="sidebar-brand">
+            <img class="sidebar-logo" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
+            <span class="sidebar-brand-text">Mudraaa</span>
+        </div>
 
-    <div class="card">
-        <div class="stock-header">
-            <div class="stock-title">
-                <div class="symbol"><%= symbol %></div>
-                <span class="sector-badge" id="sectorBadge">--</span>
-                <div class="stock-name" id="stockName">--</div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="/chat" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Chat Room</span>
+            </a>
+            <a href="/commodities" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                <span>Commodities</span>
+            </a>
+            <a href="/crypto" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                <span>Crypto</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <img class="sidebar-avatar" src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
+                <div class="sidebar-user-info">
+                    <span class="sidebar-username"><%= user.username %></span>
+                    <span class="sidebar-useremail"><%= user.email %></span>
+                </div>
             </div>
-            <div class="price-block">
-                <div class="price" id="ltp">Loading...</div>
-                <div class="change-pill hidden" id="changePill"></div>
-                <div class="updated-at hidden" id="updatedAt"></div>
+        </div>
+    </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div>
+                <h1 class="header-title"><%= symbol %></h1>
+                <p class="header-sub" id="stockName">--</p>
             </div>
         </div>
-    </div>
-
-    <div class="card">
-        <div class="card-title">Price Trend</div>
-        <div class="chart-wrap">
-            <canvas id="priceChart"></canvas>
-            <div class="chart-empty hidden" id="chartEmpty">No price data available</div>
+        <div class="header-right">
+            <div class="search-wrap">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input class="search" placeholder="Search stocks...">
+                <div id="searchResults"></div>
+            </div>
+            <div class="header-controls">
+                <button id="themeBtn" class="ctrl-btn" title="Theme">
+                    <svg class="ctrl-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <div class="header-user" id="headerAvatar">
+                    <img src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
+                </div>
+            </div>
         </div>
-    </div>
+    </header>
 
-    <div class="card">
-        <div class="card-title">Today's Trade</div>
-        <div class="stats-grid" id="todayStats">
-            <div class="stat"><div class="stat-label">Open</div><div class="stat-value gray" id="sOpen">-</div></div>
-            <div class="stat"><div class="stat-label">High</div><div class="stat-value up" id="sHigh">-</div></div>
-            <div class="stat"><div class="stat-label">Low</div><div class="stat-value down" id="sLow">-</div></div>
-            <div class="stat"><div class="stat-label">Prev Close</div><div class="stat-value gray" id="sPrev">-</div></div>
-            <div class="stat"><div class="stat-label">Volume</div><div class="stat-value" id="sVolume">-</div></div>
-            <div class="stat"><div class="stat-label">Trades</div><div class="stat-value" id="sTrades">-</div></div>
-            <div class="stat"><div class="stat-label">52W High</div><div class="stat-value up" id="s52High">-</div></div>
-            <div class="stat"><div class="stat-label">52W Low</div><div class="stat-value down" id="s52Low">-</div></div>
-        </div>
-    </div>
+    <div class="stock-content">
 
-    <div class="card">
-        <div class="card-title">Company Details</div>
-        <div class="info-grid" id="companyInfo">
-            <div class="info-row"><span class="info-label">Sector</span><span class="info-value" id="cSector">-</span></div>
-            <div class="info-row"><span class="info-label">Face Value</span><span class="info-value" id="cFace">-</span></div>
-            <div class="info-row"><span class="info-label">Market Cap</span><span class="info-value" id="cMarketCap">-</span></div>
-            <div class="info-row"><span class="info-label">Paid-up Capital</span><span class="info-value" id="cPaidUp">-</span></div>
-            <div class="info-row"><span class="info-label">Listed Shares</span><span class="info-value" id="cListed">-</span></div>
-            <div class="info-row"><span class="info-label">ISIN</span><span class="info-value" id="cIsin">-</span></div>
-            <div class="info-row"><span class="info-label">Listing Date</span><span class="info-value" id="cListing">-</span></div>
-            <div class="info-row"><span class="info-label">Website</span><span class="info-value" id="cWebsite">-</span></div>
+        <!-- Stock Hero Card -->
+        <div class="data-panel stock-hero-panel">
+            <div class="stock-header">
+                <div class="stock-title">
+                    <div class="symbol"><%= symbol %></div>
+                    <span class="sector-badge" id="sectorBadge">--</span>
+                </div>
+                <div class="price-block">
+                    <div class="price" id="ltp">Loading...</div>
+                    <div class="change-pill hidden" id="changePill"></div>
+                    <div class="updated-at hidden" id="updatedAt"></div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="card-title">Shareholding Structure</div>
-        <div class="holding-bar">
-            <div class="public" id="publicBar"></div>
-            <div class="promoter" id="promoterBar"></div>
+        <!-- Chart -->
+        <div class="data-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Price Trend</h2>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="priceChart"></canvas>
+                <div class="chart-empty hidden" id="chartEmpty">No price data available</div>
+            </div>
         </div>
-        <div class="holding-legend">
-            <span><span class="dot public"></span>Public <strong id="publicPct">-</strong></span>
-            <span><span class="dot promoter"></span>Promoter <strong id="promoterPct">-</strong></span>
-        </div>
-    </div>
 
-    <p class="updated-at">Data courtesy of NEPSE. Refresh the page to update.</p>
+        <!-- Today's Trade -->
+        <div class="data-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Today's Trade</h2>
+            </div>
+            <div class="stats-grid" id="todayStats">
+                <div class="stat"><div class="stat-label">Open</div><div class="stat-value gray" id="sOpen">-</div></div>
+                <div class="stat"><div class="stat-label">High</div><div class="stat-value up" id="sHigh">-</div></div>
+                <div class="stat"><div class="stat-label">Low</div><div class="stat-value down" id="sLow">-</div></div>
+                <div class="stat"><div class="stat-label">Prev Close</div><div class="stat-value gray" id="sPrev">-</div></div>
+                <div class="stat"><div class="stat-label">Volume</div><div class="stat-value" id="sVolume">-</div></div>
+                <div class="stat"><div class="stat-label">Trades</div><div class="stat-value" id="sTrades">-</div></div>
+                <div class="stat"><div class="stat-label">52W High</div><div class="stat-value up" id="s52High">-</div></div>
+                <div class="stat"><div class="stat-label">52W Low</div><div class="stat-value down" id="s52Low">-</div></div>
+            </div>
+        </div>
+
+        <div class="stock-grid">
+            <!-- Company Details -->
+            <div class="data-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Company Details</h2>
+                </div>
+                <div class="info-grid" id="companyInfo">
+                    <div class="info-row"><span class="info-label">Sector</span><span class="info-value" id="cSector">-</span></div>
+                    <div class="info-row"><span class="info-label">Face Value</span><span class="info-value" id="cFace">-</span></div>
+                    <div class="info-row"><span class="info-label">Market Cap</span><span class="info-value" id="cMarketCap">-</span></div>
+                    <div class="info-row"><span class="info-label">Paid-up Capital</span><span class="info-value" id="cPaidUp">-</span></div>
+                    <div class="info-row"><span class="info-label">Listed Shares</span><span class="info-value" id="cListed">-</span></div>
+                    <div class="info-row"><span class="info-label">ISIN</span><span class="info-value" id="cIsin">-</span></div>
+                    <div class="info-row"><span class="info-label">Listing Date</span><span class="info-value" id="cListing">-</span></div>
+                    <div class="info-row"><span class="info-label">Website</span><span class="info-value" id="cWebsite">-</span></div>
+                </div>
+            </div>
+
+            <!-- Shareholding Structure -->
+            <div class="data-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Shareholding Structure</h2>
+                </div>
+                <div class="holding-bar">
+                    <div class="public" id="publicBar"></div>
+                    <div class="promoter" id="promoterBar"></div>
+                </div>
+                <div class="holding-legend">
+                    <span><span class="dot public"></span>Public <strong id="publicPct">-</strong></span>
+                    <span><span class="dot promoter"></span>Promoter <strong id="promoterPct">-</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <p class="stock-footer-note">Data courtesy of NEPSE. Refresh the page to update.</p>
+
+    </div>
 
 </div>
 
+<script src="/js/theme.js"></script>
 <script src="/js/chart.js"></script>
 <script src="/js/stock.js"></script>
+<script>
+    initThemeToggle('themeBtn');
+    var mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    var sidebar = document.querySelector(".sidebar");
+    var overlay = document.getElementById("sidebarOverlay");
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener("click", function() {
+            sidebar.classList.toggle("open");
+            overlay.classList.toggle("visible");
+        });
+    }
+    if (overlay) {
+        overlay.addEventListener("click", function() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("visible");
+        });
+    }
+
+    /* Stock Search */
+    var companyListCache = null;
+    var searchEl = document.querySelector(".search");
+    var searchResults = document.getElementById("searchResults");
+    var activeIndex = -1;
+
+    function stockDebounce(fn, ms) { var t; return function() { var a = arguments, c = this; clearTimeout(t); t = setTimeout(function() { fn.apply(c, a); }, ms); }; }
+
+    function stockHighlight(text, query) {
+        var s = String(text ?? ""); var l = s.toLowerCase(); var q = query.toLowerCase();
+        if (!q || !l.includes(q)) return s;
+        var i = l.indexOf(q); return s.slice(0, i) + '<span class="hl">' + s.slice(i, i + q.length) + '</span>' + s.slice(i + q.length);
+    }
+
+    function stockEscapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, function(c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; });
+    }
+
+    function stockFilterCompanies(companies, query) {
+        return companies.filter(function(s) { var n = String(s.symbol || s.securityName || "").toLowerCase(); return query.toLowerCase().split(" ").every(function(w) { return n.includes(w); }); }).slice(0, 12);
+    }
+
+    function stockGoTo(sym) { window.location.href = "/stock/" + encodeURIComponent(sym); }
+
+    function stockRenderResults(results, query) {
+        if (results.length === 0) { searchResults.innerHTML = '<div class="search-empty">No stocks found for "<strong>' + stockEscapeHtml(query) + '"</strong></div>'; return; }
+        searchResults.innerHTML = '<div class="search-results-head">Stocks (' + results.length + ')</div>' + results.map(function(st, i) {
+            return '<div class="search-item' + (i === activeIndex ? ' active' : '') + '" data-symbol="' + st.symbol + '">' +
+                '<span class="s-item-symbol">' + stockHighlight(st.symbol, query) + '</span>' +
+                '<span class="s-item-name">' + stockHighlight(st.securityName || st.companyName || "", query) + '</span>' +
+                '<span class="s-item-sector">' + (st.sectorName || st.instrumentType || "") + '</span></div>';
+        }).join("");
+    }
+
+    var stockDebouncedSearch = stockDebounce(async function(query) {
+        activeIndex = -1; searchResults.style.display = "block";
+        try {
+            if (!companyListCache) { var r = await fetch("/api/CompanyList"); if (!r.ok) throw new Error("HTTP " + r.status); companyListCache = await r.json(); }
+            stockRenderResults(stockFilterCompanies(companyListCache, query), query);
+        } catch(e) { console.error("Search error:", e); }
+    }, 250);
+
+    searchEl.addEventListener("input", function(e) {
+        var q = e.target.value.trim().replace(/\s+/g, " "); activeIndex = -1;
+        if (!q) { searchResults.innerHTML = ""; searchResults.style.display = "none"; return; }
+        stockDebouncedSearch(q);
+    });
+    searchEl.addEventListener("keydown", function(e) {
+        if (searchResults.style.display === "none") return;
+        var items = searchResults.querySelectorAll(".search-item");
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            e.preventDefault(); if (!items.length) return;
+            activeIndex = e.key === "ArrowDown" ? (activeIndex + 1) % items.length : (activeIndex - 1 + items.length) % items.length;
+            items.forEach(function(it, i) { it.classList.toggle("active", i === activeIndex); });
+            items[activeIndex].scrollIntoView({ block: "nearest" });
+        }
+        if (e.key === "Enter" && activeIndex >= 0 && items[activeIndex]) { e.preventDefault(); stockGoTo(items[activeIndex].dataset.symbol); }
+        if (e.key === "Escape") { searchResults.style.display = "none"; }
+    });
+    searchResults.addEventListener("click", function(e) { var it = e.target.closest(".search-item"); if (it) stockGoTo(it.dataset.symbol); });
+    document.addEventListener("click", function(e) { if (!searchEl.contains(e.target) && !searchResults.contains(e.target)) { searchEl.value = ""; searchResults.style.display = "none"; activeIndex = -1; } });
+</script>
 
 </body>
 </html>

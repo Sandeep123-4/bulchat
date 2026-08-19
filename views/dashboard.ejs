@@ -9,7 +9,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="/css/base.css">
 <link rel="stylesheet" href="/css/dashboard.css">
@@ -18,173 +18,222 @@
 
 <body>
 
+<!-- ===== SIDEBAR OVERLAY (mobile) ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+    <div class="sidebar-inner">
+        <div class="sidebar-brand">
+            <img class="sidebar-logo" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
+            <span class="sidebar-brand-text">Mudraaa</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="sidebar-link active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span data-i18n="sidebarDashboard">Dashboard</span>
+            </a>
+            <a href="/chat" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span data-i18n="chatRoom">Chat Room</span>
+            </a>
+            <a href="/commodities" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                <span data-i18n="commodities">Commodities</span>
+            </a>
+            <a href="/crypto" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                <span data-i18n="crypto">Crypto</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <img class="sidebar-avatar" src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
+                <div class="sidebar-user-info">
+                    <span class="sidebar-username"><%= user.username %></span>
+                    <span class="sidebar-useremail"><%= user.email %></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
 <div class="main">
-<div class="top">
-    <div class="brand">
-        <img class="brand-logo" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
-        <div>
-            <h2><span data-i18n="welcome">Welcome,</span> <%= user.username %></h2>
-            <span class="top-sub" data-i18n="topSub">Here's your market overview</span>
-        </div>
-    </div>
-    <div class="search-wrap">
-        <input class="search" placeholder="Search stocks..." >
-        <div id="searchResults"></div>
-    </div>
-    <div class="controls">
-        <button id="langBtn" class="ctrl-btn" title="Language">नेपाली</button>
-        <button id="themeBtn" class="ctrl-btn" title="Theme">Dark Mode</button>
-    </div>
-</div>
 
-<div id="activeStock"></div>
-
-<div class="cards">
-
-<div class="card nepse-card">
-    <div class="card-title" data-i18n="marketOverview">Market Overview</div>
-    <div id="nepseIndex">Loading...</div>
-    <div id="changePercent">Loading...</div>
-    <div class="stats-grid">
-        <div class="stat">
-            <span class="stat-label" data-i18n="statChange">Change</span>
-            <span class="stat-value" id="change">-</span>
-        </div>
-        <div class="stat">
-            <span class="stat-label" data-i18n="statHigh">Day High</span>
-            <span class="stat-value" id="high">-</span>
-        </div>
-        <div class="stat">
-            <span class="stat-label" data-i18n="statLow">Day Low</span>
-            <span class="stat-value" id="low">-</span>
-        </div>
-    </div>
-    <div class="global-ticker" id="globalTicker">
-        <div class="ticker-item">
-            <span class="ticker-icon gold">Au</span>
-            <div class="ticker-info">
-                <span class="ticker-label">Gold/तोला</span>
-                <span class="ticker-price" id="goldPrice">--</span>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div>
+                <h1 class="header-title"><span data-i18n="welcome">Welcome,</span> <%= user.username %></h1>
+                <p class="header-sub" data-i18n="topSub">Here's your market overview</p>
             </div>
-            <span class="ticker-change" id="goldChange">--</span>
         </div>
-    </div>
-</div>
-
-<div class="card profile-card">
-    <div class="card-title" data-i18n="yourProfile">Your Profile</div>
-    <div class="profile-body">
-        <div class="profileimg">
-            <img id="profileAvatar" src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
-            <div class="avatar-overlay" id="avatarOverlay">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                    <circle cx="12" cy="13" r="4"></circle>
-                </svg>
-                <span data-i18n="changePhoto">Change photo</span>
+        <div class="header-right">
+            <div class="search-wrap">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input class="search" placeholder="Search stocks..." >
+                <div id="searchResults"></div>
             </div>
-            <input type="file" id="avatarInput" accept="image/*" hidden>
+            <div class="header-controls">
+                <button id="langBtn" class="ctrl-btn" title="Language">नेपाली</button>
+                <button id="themeBtn" class="ctrl-btn" title="Theme">
+                    <svg class="ctrl-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <div class="header-user" id="headerAvatar">
+                    <img src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
+                </div>
+            </div>
         </div>
-        <div class="profileinfo">
-            <div class="name" id="nameDisplay">
-                <span id="usernameText"><%= user.username %></span>
-                <button id="edityourname" data-i18n="edit">edit</button>
+    </header>
+
+    <div id="activeStock"></div>
+
+    <!-- Hero Row: NEPSE Index + Quick Actions -->
+    <section class="hero-grid">
+        <div class="hero-index">
+            <div class="section-label" data-i18n="marketOverview">Market Overview</div>
+            <div class="nepse-hero">
+                <div class="nepse-hero-left">
+                    <div id="nepseIndex"><span class="skeleton-text" style="width:140px;height:32px;display:inline-block;"></span></div>
+                    <div id="changePercent" class="skeleton-text" style="width:70px;height:22px;">Loading...</div>
+                </div>
+                <div class="nepse-hero-meta">
+                    <div class="nepse-meta-item">
+                        <span class="nepse-meta-label" data-i18n="statChange">Change</span>
+                        <span class="nepse-meta-value" id="change">-</span>
+                    </div>
+                    <div class="nepse-meta-divider"></div>
+                    <div class="nepse-meta-item">
+                        <span class="nepse-meta-label" data-i18n="statHigh">Day High</span>
+                        <span class="nepse-meta-value high" id="high">-</span>
+                    </div>
+                    <div class="nepse-meta-divider"></div>
+                    <div class="nepse-meta-item">
+                        <span class="nepse-meta-label" data-i18n="statLow">Day Low</span>
+                        <span class="nepse-meta-value low" id="low">-</span>
+                    </div>
+                </div>
             </div>
-            <hr>
-            <div class="displayemail">
-                <span><%= user.email %></span>
+            <div class="global-ticker" id="globalTicker">
+                <div class="ticker-item">
+                    <span class="ticker-icon gold">Au</span>
+                    <div class="ticker-info">
+                        <span class="ticker-label">Gold/तोला</span>
+                        <span class="ticker-price" id="goldPrice">--</span>
+                    </div>
+                    <span class="ticker-change" id="goldChange">--</span>
+                </div>
             </div>
-            <div class="premium">
-                <span data-i18n="premium">Premium:  </span>
-                <% if(user.premium){ %>
-                    <span style="color: #16a34a;" data-i18n="premiumActive"> active</span>
-                <% } else { %>
-                    <span data-i18n="premiumInactive">not active</span>
-                <% } %>
-            </div>
-            <% if(!user.premium){ %>
-            <div class="buypremiumcard">
-                <button id="buyPremium" data-i18n="activate">activate</button>
-                <span data-i18n="premiumText">enjoy free suggestions from chat</span>
-            </div>
-            <% } %>
         </div>
-    </div>
-</div>
 
-<div class="card quick-card">
-    <div class="card-title" data-i18n="quickTitle">Quick Actions</div>
-    <button onclick="location.href='/chat'" data-i18n="chatRoom">
-        Chat Room
-    </button>
-    <button onclick="location.href='/commodities'" data-i18n="commodities">
-        Commodities
-    </button>
-    <button onclick="location.href='/crypto'" data-i18n="crypto">
-        Crypto
-    </button>
-</div>
-
-<div class="card index-chart-card">
-    <div class="card-title" data-i18n="chartTitle">NEPSE Index Trend</div>
-    <div class="index-chart-wrap">
-        <canvas id="indexChart"></canvas>
-    </div>
-</div>
-
-</div>
-
-<div class="section">
-    <div class="section-title" data-i18n="subIndices">Sub-indices</div>
-    <div class="buyCard  showindexsub"></div>
-</div>
-
-<div class="news">
-    <div class="news-head">
-        <span class="section-title" data-i18n="marketMovers">Market Movers</span>
-    </div>
-   <div class="click">
-    <button
-    id="Gainer" data-i18n="gainers" >Gainers</button>
-    <button
-    id="Loser" data-i18n="losers" >Losers</button>
-    <button
-    id="turnover" data-i18n="turnover" >turnover</button>
-    <button
-    id="volume" data-i18n="volume" >volume</button>
-   </div>
-   <div class="show">
-    <div class="ide header">
-       <div data-i18n="symbol">Symbol</div>
-        <div>LTP</div>
-        <div data-i18n="pctChg">% Chg</div>
-        <div data-i18n="point">point</div>
-        <div data-i18n="turnoverHdr">Turnover</div>
-        <div data-i18n="volumeHdr">Volume</div>
-        <div data-i18n="open">Open</div>
-        <div data-i18n="close">Close</div>
-        <div data-i18n="previous">previous</div>
-    </div>
-       <div id="topGainersTable"></div>
-        <div id="topLosersTable"></div>
-    
-   </div>
-
-</div>
-
-<div class="section subindices-details">
-    <div class="section-title" data-i18n="allSubIndices">All Sub-indices Details</div>
-    <div class="news">
-        <div class="show">
-            <div class="ide header sub-ide">
-                <div data-i18n="index">Index</div>
-                <div data-i18n="value">Value</div>
-                <div data-i18n="pointChange">Point Change</div>
-                <div data-i18n="pctChange">% Change</div>
+        <div class="hero-actions">
+            <div class="quick-actions-grid">
+                <a href="/chat" class="action-card">
+                    <div class="action-icon chat-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    </div>
+                    <span class="action-label" data-i18n="chatRoom">Chat Room</span>
+                </a>
+                <a href="/commodities" class="action-card">
+                    <div class="action-icon commodities-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                    </div>
+                    <span class="action-label" data-i18n="commodities">Commodities</span>
+                </a>
+                <a href="/crypto" class="action-card">
+                    <div class="action-icon crypto-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                    </div>
+                    <span class="action-label" data-i18n="crypto">Crypto</span>
+                </a>
             </div>
-            <div id="subindicesTable"></div>
         </div>
-    </div>
+    </section>
+
+    <!-- Chart Section -->
+    <section class="chart-section">
+        <div class="section-header">
+            <div class="section-label" data-i18n="chartTitle">NEPSE Index Trend</div>
+            <div class="chart-timeframe" id="chartTimeframe"></div>
+        </div>
+        <div class="chart-container">
+            <canvas id="indexChart"></canvas>
+        </div>
+    </section>
+
+    <!-- Sub-indices Marquee -->
+    <section class="marquee-section">
+        <div class="marquee-label" data-i18n="subIndices">Sub-indices</div>
+        <div class="marquee-track-wrap">
+            <div class="buyCard showindexsub"></div>
+        </div>
+    </section>
+
+    <!-- Market Movers + Sub-indices Details -->
+    <section class="data-grid">
+        <!-- Market Movers -->
+        <div class="data-panel movers-panel">
+            <div class="panel-header">
+                <h2 class="panel-title" data-i18n="marketMovers">Market Movers</h2>
+                <div class="tab-pills">
+                    <button class="pill active" id="Gainer" data-i18n="gainers">Gainers</button>
+                    <button class="pill" id="Loser" data-i18n="losers">Losers</button>
+                    <button class="pill" id="turnover" data-i18n="turnover">Turnover</button>
+                    <button class="pill" id="volume" data-i18n="volume">Volume</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="symbol">Symbol</th>
+                            <th>LTP</th>
+                            <th data-i18n="pctChg">% Chg</th>
+                            <th data-i18n="point">Point</th>
+                            <th data-i18n="turnoverHdr">Turnover</th>
+                            <th data-i18n="volumeHdr">Volume</th>
+                            <th data-i18n="open">Open</th>
+                            <th data-i18n="close">Close</th>
+                            <th data-i18n="previous">Prev</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topGainersTable">
+                        <tr class="loading-row"><td colspan="9"><div class="loading-wrap" id="moversLoading"><div class="spinner"></div><span>Loading market data...</span></div></td></tr>
+                    </tbody>
+                    <tbody id="topLosersTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sub-indices Details -->
+        <div class="data-panel subindices-panel">
+            <div class="panel-header">
+                <h2 class="panel-title" data-i18n="allSubIndices">All Sub-indices Details</h2>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table sub-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="index">Index</th>
+                            <th data-i18n="value">Value</th>
+                            <th data-i18n="pointChange">Point Chg</th>
+                            <th data-i18n="pctChange">% Chg</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subindicesTable">
+                        <tr class="loading-row"><td colspan="4"><div class="loading-wrap" id="subindicesLoading"><div class="spinner"></div><span>Loading...</span></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
 </div>
 
 <script src="/js/chart.js"></script>

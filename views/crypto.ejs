@@ -1,73 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
-     crossorigin="anonymous"></script>
-    <title>Crypto | Mudraaa</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/crypto.css">
-    <meta name="username" content="<%= user.username %>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
+ crossorigin="anonymous"></script>
+<title>Crypto | Mudraaa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+<link rel="stylesheet" href="/css/crypto.css">
+<meta name="username" content="<%= user.username %>">
 </head>
 <body>
 
-<div class="page">
+<!-- ===== SIDEBAR OVERLAY (mobile) ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <div class="topbar">
-        <a class="back-link" href="/dashboard">&larr; Back to Dashboard</a>
-        <button class="theme-toggle" id="themeToggle">Dark Mode</button>
-    </div>
-
-    <div class="page-title">Crypto</div>
-    <div class="page-subtitle">Top 50 cryptocurrencies by 24h volume &mdash; live from Binance</div>
-
-    <div class="summary-row" id="summaryRow" style="display:none;">
-        <div class="summary-card">
-            <div class="summary-label">Total 24h Volume</div>
-            <div class="summary-value" id="totalVol">--</div>
-        </div>
-        <div class="summary-card">
-            <div class="summary-label">Top Gainer</div>
-            <div class="summary-value green" id="topGainer">--</div>
-        </div>
-        <div class="summary-card">
-            <div class="summary-label">Top Loser</div>
-            <div class="summary-value red" id="topLoser">--</div>
-        </div>
-    </div>
-
-    <input type="text" class="search-bar" id="searchInput" placeholder="Search by name or symbol...">
-
-    <div class="card" style="padding: 0; overflow: hidden;">
-        <div id="loadingState" class="loading">
-            <div class="spinner"></div>
-            Fetching crypto data from Binance...
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+    <div class="sidebar-inner">
+        <div class="sidebar-brand">
+            <img class="sidebar-logo" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
+            <span class="sidebar-brand-text">Mudraaa</span>
         </div>
 
-        <div id="errorState" class="error-msg" style="display:none;"></div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="/chat" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Chat Room</span>
+            </a>
+            <a href="/commodities" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                <span>Commodities</span>
+            </a>
+            <a href="/crypto" class="sidebar-link active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                <span>Crypto</span>
+            </a>
+        </nav>
 
-        <div class="table-wrap" id="tableWrap" style="display:none;">
-            <table>
-                <thead>
-                    <tr>
-                        <th data-col="rank">#</th>
-                        <th data-col="symbol">Coin</th>
-                        <th data-col="price">Price</th>
-                        <th data-col="change24h">24h %</th>
-                        <th data-col="high24h">24h High</th>
-                        <th data-col="low24h">24h Low</th>
-                        <th data-col="volume">24h Volume</th>
-                        <th data-col="trades">Trades</th>
-                    </tr>
-                </thead>
-                <tbody id="cryptoBody"></tbody>
-            </table>
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <img class="sidebar-avatar" src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
+                <div class="sidebar-user-info">
+                    <span class="sidebar-username"><%= user.username %></span>
+                    <span class="sidebar-useremail"><%= user.email %></span>
+                </div>
+            </div>
         </div>
     </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div>
+                <h1 class="header-title">Crypto</h1>
+                <p class="header-sub">Top 50 cryptocurrencies by 24h volume</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="search-wrap">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input class="search" id="searchInput" placeholder="Search by name or symbol...">
+            </div>
+            <div class="header-controls">
+                <button id="themeBtn" class="ctrl-btn" title="Theme">
+                    <svg class="ctrl-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <div class="header-user" id="headerAvatar">
+                    <img src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="crypto-content">
+
+        <div class="summary-row" id="summaryRow" style="display:none;">
+            <div class="summary-card">
+                <div class="summary-label">Total 24h Volume</div>
+                <div class="summary-value" id="totalVol">--</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Top Gainer</div>
+                <div class="summary-value green" id="topGainer">--</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Top Loser</div>
+                <div class="summary-value red" id="topLoser">--</div>
+            </div>
+        </div>
+
+        <div class="data-panel" style="overflow: hidden;">
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                Fetching crypto data from Binance...
+            </div>
+
+            <div id="errorState" class="error-msg" style="display:none;"></div>
+
+            <div class="table-wrap" id="tableWrap" style="display:none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th data-col="rank">#</th>
+                            <th data-col="symbol">Coin</th>
+                            <th data-col="price">Price</th>
+                            <th data-col="change24h">24h %</th>
+                            <th data-col="high24h">24h High</th>
+                            <th data-col="low24h">24h Low</th>
+                            <th data-col="volume">24h Volume</th>
+                            <th data-col="trades">Trades</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cryptoBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
 </div>
 
+<!-- Chart Overlay -->
 <div class="chart-overlay" id="chartOverlay">
     <div class="chart-modal">
         <div class="chart-header">
@@ -95,8 +166,26 @@
 </div>
 
 <script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
-
+<script src="/js/theme.js"></script>
 <script src="/js/crypto.js"></script>
+<script>
+    initThemeToggle('themeBtn');
+    var mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    var sidebar = document.querySelector(".sidebar");
+    var overlay = document.getElementById("sidebarOverlay");
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener("click", function() {
+            sidebar.classList.toggle("open");
+            overlay.classList.toggle("visible");
+        });
+    }
+    if (overlay) {
+        overlay.addEventListener("click", function() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("visible");
+        });
+    }
+</script>
 
 </body>
 </html>

@@ -25,21 +25,22 @@ var translations = {
         marketMovers: "Market Movers",
         gainers: "Gainers",
         losers: "Losers",
-        turnover: "turnover",
-        volume: "volume",
+        turnover: "Turnover",
+        volume: "Volume",
         symbol: "Symbol",
         pctChg: "% Chg",
-        point: "point",
+        point: "Point",
         turnoverHdr: "Turnover",
         volumeHdr: "Volume",
         open: "Open",
         close: "Close",
-        previous: "previous",
+        previous: "Prev",
         allSubIndices: "All Sub-indices Details",
         index: "Index",
         value: "Value",
-        pointChange: "Point Change",
-        pctChange: "% Change"
+        pointChange: "Point Chg",
+        pctChange: "% Change",
+        sidebarDashboard: "Dashboard"
     },
     ne: {
         welcome: "स्वागत छ,",
@@ -79,14 +80,19 @@ var translations = {
         index: "सूचकाङ्क",
         value: "मूल्य",
         pointChange: "अंक परिवर्तन",
-        pctChange: "% परिवर्तन"
+        pctChange: "% परिवर्तन",
+        sidebarDashboard: "ड्यासबोर्ड"
     }
 };
 
+/* ===== Theme & Lang ===== */
 var body = document.body;
 var themeBtn = document.getElementById("themeBtn");
 var langBtn = document.getElementById("langBtn");
 var currentLang = "en";
+
+var ICON_MOON = '<svg class="ctrl-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+var ICON_SUN = '<svg class="ctrl-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
 
 function applyTheme(theme) {
     if (theme === "dark") {
@@ -96,9 +102,8 @@ function applyTheme(theme) {
         body.classList.remove("dark-theme");
         body.classList.add("light-theme");
     }
-    themeBtn.textContent = currentLang === "ne"
-        ? (body.classList.contains("dark-theme") ? "लाइट मोड" : "डार्क मोड")
-        : (body.classList.contains("dark-theme") ? "Light Mode" : "Dark Mode");
+    var isDark = body.classList.contains("dark-theme");
+    themeBtn.innerHTML = isDark ? ICON_MOON : ICON_SUN;
     if (window.redrawCharts) { window.redrawCharts(); }
 }
 
@@ -130,59 +135,109 @@ langBtn.addEventListener("click", function () {
     applyLang(next);
 });
 
-/* Profile picture upload */
+/* ===== Mobile Sidebar ===== */
+var mobileMenuBtn = document.getElementById("mobileMenuBtn");
+var sidebar = document.querySelector(".sidebar");
+var sidebarOverlay = document.getElementById("sidebarOverlay");
+
+function openSidebar() {
+    sidebar.classList.add("open");
+    if (sidebarOverlay) sidebarOverlay.classList.add("visible");
+}
+function closeSidebar() {
+    sidebar.classList.remove("open");
+    if (sidebarOverlay) sidebarOverlay.classList.remove("visible");
+}
+
+if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener("click", function () {
+        if (sidebar.classList.contains("open")) { closeSidebar(); } else { openSidebar(); }
+    });
+    document.addEventListener("click", function (e) {
+        if (sidebar.classList.contains("open") && !sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+            closeSidebar();
+        }
+    });
+}
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener("click", function () { closeSidebar(); });
+}
+
+/* ===== Utilities ===== */
+function debounce(fn, ms) {
+    var timer;
+    return function () {
+        var args = arguments;
+        var ctx = this;
+        clearTimeout(timer);
+        timer = setTimeout(function () { fn.apply(ctx, args); }, ms);
+    };
+}
+
+function removeLoadingEl(id) {
+    var el = document.getElementById(id);
+    if (el) {
+        var row = el.closest("tr") || el.closest(".loading-wrap");
+        if (row && row.tagName === "TR") { row.remove(); }
+        else if (el.classList.contains("loading-wrap")) { el.remove(); }
+    }
+}
+
+/* ===== Profile (kept for JS compat) ===== */
 var avatarOverlay = document.getElementById("avatarOverlay");
 var avatarInput = document.getElementById("avatarInput");
+if (avatarOverlay && avatarInput) {
+    avatarOverlay.addEventListener("click", function () { avatarInput.click(); });
+    avatarInput.addEventListener("change", async function () {
+        var file = this.files[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) { alert("Please choose an image file."); return; }
+        if (file.size > 5 * 1024 * 1024) { alert("Image must be under 5MB."); return; }
+        var reader = new FileReader();
+        reader.onload = async function () {
+            var res;
+            try {
+                res = await fetch("/api/profile/avatar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ image: reader.result })
+                });
+            } catch (err) {
+                console.error("Avatar upload error:", err);
+                alert("Network error - check if the server is running");
+                return;
+            }
+            var data;
+            try {
+                data = await res.json();
+            } catch (err) {
+                console.error("Non-JSON response:", res.status);
+                alert("Upload failed");
+                return;
+            }
+            if (!res.ok) { alert(data.message || "Upload failed"); return; }
+            var avatar = document.getElementById("profileAvatar");
+            if (avatar) avatar.src = data.avatar + "?t=" + Date.now();
+        };
+        reader.readAsDataURL(file);
+        this.value = "";
+    });
+}
 
-avatarOverlay.addEventListener("click", function () { avatarInput.click(); });
-
-avatarInput.addEventListener("change", async function () {
-    var file = this.files[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) { alert("Please choose an image file."); return; }
-    if (file.size > 5 * 1024 * 1024) { alert("Image must be under 5MB."); return; }
-
-    var reader = new FileReader();
-    reader.onload = async function () {
-        var res;
-        try {
-            res = await fetch("/api/profile/avatar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ image: reader.result })
-            });
-        } catch (err) {
-            console.error("Avatar upload error:", err);
-            alert("Network error - check if the server is running");
-            return;
-        }
-        var data;
-        try {
-            data = await res.json();
-        } catch (err) {
-            var text = await res.text().catch(function () { return ""; });
-            console.error("Non-JSON response:", res.status, text);
-            alert("Upload failed (server replied with " + res.status + "). Restart the server with the new code.");
-            return;
-        }
-        if (!res.ok) { alert(data.message || "Upload failed"); return; }
-        document.getElementById("profileAvatar").src = data.avatar + "?t=" + Date.now();
-    };
-    reader.readAsDataURL(file);
-    this.value = "";
-});
-
-/* Username edit */
-document.getElementById("edityourname").addEventListener("click", function () {
-    var nameDiv = document.getElementById("nameDisplay");
-    nameDiv.innerHTML = '<input type="text" id="usernameInput" placeholder="Enter name"><button id="saveyourname">Save</button>';
-    document.getElementById("usernameInput").focus();
-    document.getElementById("saveyourname").addEventListener("click", saveUsername);
-});
+var edityourname = document.getElementById("edityourname");
+if (edityourname) {
+    edityourname.addEventListener("click", function () {
+        var nameDiv = document.getElementById("nameDisplay");
+        nameDiv.innerHTML = '<input type="text" id="usernameInput" placeholder="Enter name"><button id="saveyourname">Save</button>';
+        document.getElementById("usernameInput").focus();
+        document.getElementById("saveyourname").addEventListener("click", saveUsername);
+    });
+}
 
 async function saveUsername() {
     var input = document.getElementById("usernameInput");
+    if (!input) return;
     var newName = input.value.trim();
     if (!newName) { alert("Enter a name"); return; }
     try {
@@ -193,7 +248,6 @@ async function saveUsername() {
             body: JSON.stringify({ username: newName })
         });
         var data = await response.json();
-        console.log("Server response:", data);
         if (!response.ok) { alert(data.message || "Failed to save"); return; }
         document.getElementById("nameDisplay").innerHTML =
             '<span id="usernameText">' + data.username + '</span><button id="edityourname">Edit</button>';
@@ -211,193 +265,202 @@ function editUsername() {
     document.getElementById("saveyourname").addEventListener("click", saveUsername);
 }
 
-/* NEPSE Index */
+/* ===== NEPSE Index ===== */
 async function fetchNepseIndex() {
     try {
         var response = await fetch('/api/nepse-index');
         if (!response.ok) throw new Error("HTTP " + response.status);
         var data = await response.json();
         var nindex = document.getElementById("nepseIndex");
-        nindex.innerHTML = '<span class="nepse-label">Nepse: </span>' + Number(data["NEPSE Index"].currentValue).toFixed(2);
+        var idx = data["NEPSE Index"];
+        nindex.innerHTML = '<span class="nepse-label">Nepse </span>' + Number(idx.currentValue).toFixed(2);
         var changepercentage = document.getElementById("changePercent");
         var change = document.getElementById("change");
-        if (data["NEPSE Index"].close < data["NEPSE Index"].currentValue) {
-            nindex.style.color = "#32CD32";
-            changepercentage.textContent = Number(-data["NEPSE Index"].perChange).toFixed(2) + "%";
-            changepercentage.style.color = "#32CD32";
-            change.textContent = Number(data["NEPSE Index"].change).toFixed(2);
-            change.style.color = "#32CD32";
-        } else {
-            nindex.style.color = "#FF0000";
-            changepercentage.textContent = Number(data["NEPSE Index"].perChange).toFixed(2) + "%";
-            changepercentage.style.color = "#FF0000";
-            change.textContent = Number(data["NEPSE Index"].change).toFixed(2);
-            change.style.color = "#FF0000";
-        }
-        document.getElementById("high").textContent = Number(data["NEPSE Index"].high).toFixed(2);
-        document.getElementById("low").textContent = Number(data["NEPSE Index"].low).toFixed(2);
+        var isUp = idx.close < idx.currentValue;
+        nindex.style.color = isUp ? "#16a34a" : "#dc2626";
+        changepercentage.textContent = (isUp ? "+" : "") + Number(idx.perChange).toFixed(2) + "%";
+        changepercentage.style.color = isUp ? "#16a34a" : "#dc2626";
+        changepercentage.style.background = isUp ? "rgba(22,163,74,0.12)" : "rgba(220,38,38,0.12)";
+        change.textContent = (isUp ? "+" : "") + Number(idx.change).toFixed(2);
+        change.style.color = isUp ? "#16a34a" : "#dc2626";
+        document.getElementById("high").textContent = Number(idx.high).toFixed(2);
+        document.getElementById("low").textContent = Number(idx.low).toFixed(2);
     } catch (error) { console.error("NEPSE API ERROR:", error); }
 }
 
-/* Top Gainers */
+/* ===== Market Movers (Table-based) ===== */
+function buildTableRow(stock, detail, rowClass) {
+    var tr = document.createElement("tr");
+    tr.className = rowClass;
+    tr.dataset.symbol = stock.symbol || "";
+    var pctChange = Number(stock.percentageChange ?? stock.changePercent ?? stock.percentChange ?? 0);
+    var pctClass = pctChange >= 0 ? "td-up" : "td-down";
+    var pctPrefix = pctChange >= 0 ? "+" : "";
+    var pointChange = Number(stock.pointChange ?? 0);
+    var pointPrefix = pointChange >= 0 ? "+" : "";
+    var turnover = Number(detail.Turnover ?? detail.turnover ?? 0);
+    var volume = Number(detail.volume ?? 0);
+    var open = Number(stock.ltp - (stock.pointChange ?? 0) ?? 0);
+    var cp = Number(stock.cp ?? stock.close ?? stock.closingPrice ?? 0);
+    var prev = Number(detail.previousClose ?? 0);
+    tr.innerHTML =
+        '<td class="td-symbol">' + (stock.symbol || "-") + '</td>' +
+        '<td>' + Number(stock.ltp ?? stock.close ?? stock.lastTradedPrice ?? 0).toFixed(2) + '</td>' +
+        '<td class="' + pctClass + '">' + pctPrefix + pctChange.toFixed(2) + '%</td>' +
+        '<td class="' + pctClass + '">' + pointPrefix + pointChange.toFixed(2) + '</td>' +
+        '<td>' + turnover.toLocaleString() + '</td>' +
+        '<td>' + volume.toLocaleString() + '</td>' +
+        '<td>' + open.toFixed(2) + '</td>' +
+        '<td>' + cp.toFixed(2) + '</td>' +
+        '<td>' + prev.toFixed(2) + '</td>';
+    return tr;
+}
+
+function buildDetailMap(top10, allStocks) {
+    var map = {};
+    top10.forEach(function (s) {
+        var sym = String(s.symbol).trim().toUpperCase();
+        map[sym] = allStocks[sym] || s;
+    });
+    return map;
+}
+
+function fillTableRows(tbodyId, rows) {
+    var tbody = document.getElementById(tbodyId);
+    tbody.innerHTML = "";
+    rows.forEach(function (r) { tbody.appendChild(r); });
+}
+
 async function fetchTopGainers() {
     try {
-        var response = await fetch('/api/top-gainers');
-        var response1 = await fetch('/api/TradeTurnoverTransactionSubindices');
+        removeLoadingEl("moversLoading");
+        var [response, response1] = await Promise.all([
+            fetch('/api/top-gainers'),
+            fetch('/api/TradeTurnoverTransactionSubindices')
+        ]);
         if (!response.ok) throw new Error("HTTP " + response.status);
         var data = await response.json();
         var data1 = await response1.json();
         var top10 = data.slice(0, 10);
         var allStocks = data1.scripsDetails || {};
-        var scripsDetails = {};
-        top10.forEach(function (topStock) {
-            var symbol = String(topStock.symbol).trim().toUpperCase();
-            scripsDetails[symbol] = allStocks[symbol] || topStock;
+        var details = buildDetailMap(top10, allStocks);
+        var rows = top10.map(function (stock) {
+            return buildTableRow(stock, details[stock.symbol] || {}, "row-gainer");
         });
-        var table = document.getElementById("topGainersTable");
-        table.innerHTML = "";
-        top10.forEach(function (stock) {
-            var row = document.createElement("div");
-            var detail = scripsDetails[stock.symbol] || {};
-            row.className = "ide gainer-row clickable-row";
-            row.dataset.symbol = stock.symbol;
-            row.innerHTML =
-                '<div>' + stock.symbol + '</div>' +
-                '<div>' + Number(stock.ltp).toFixed(2) + '</div>' +
-                '<div>' + Number(stock.percentageChange).toFixed(2) + '%</div>' +
-                '<div>+' + Number(stock.pointChange).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.Turnover ?? 0).toLocaleString() + '</div>' +
-                '<div>' + Number(detail.volume ?? 0).toLocaleString() + '</div>' +
-                '<div>' + Number(stock.ltp - stock.pointChange ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(stock.cp).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.previousClose ?? 0).toFixed(2) + '</div>';
-            table.appendChild(row);
-        });
+        fillTableRows("topGainersTable", rows);
     } catch (error) { console.error("NEPSE API ERROR:", error); }
 }
 
-/* Top Losers */
 async function fetchTopLosers() {
     try {
-        var response = await fetch('/api/top-losers');
-        var response1 = await fetch('/api/TradeTurnoverTransactionSubindices');
+        removeLoadingEl("moversLoading");
+        var [response, response1] = await Promise.all([
+            fetch('/api/top-losers'),
+            fetch('/api/TradeTurnoverTransactionSubindices')
+        ]);
         if (!response.ok) throw new Error("HTTP " + response.status);
         var data = await response.json();
         var data1 = await response1.json();
         var top10 = data.slice(0, 10);
-        var table = document.getElementById("topLosersTable");
         var allStocks = data1.scripsDetails || {};
-        var scripsDetails = {};
-        top10.forEach(function (topStock) {
-            var symbol = String(topStock.symbol).trim().toUpperCase();
-            scripsDetails[symbol] = allStocks[symbol] || topStock;
+        var details = buildDetailMap(top10, allStocks);
+        var rows = top10.map(function (stock) {
+            return buildTableRow(stock, details[stock.symbol] || {}, "row-loser");
         });
         document.getElementById("topGainersTable").innerHTML = "";
-        table.innerHTML = "";
-        top10.forEach(function (stock) {
-            var row = document.createElement("div");
-            row.className = "ide loser-row clickable-row";
-            row.dataset.symbol = stock.symbol;
-            var detail = scripsDetails[stock.symbol] || {};
-            row.innerHTML =
-                '<div>' + (stock.symbol || "-") + '</div>' +
-                '<div>' + Number(stock.ltp ?? stock.close ?? stock.lastTradedPrice ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(stock.percentageChange ?? stock.changePercent ?? stock.percentChange ?? 0).toFixed(2) + '%</div>' +
-                '<div>' + Number(stock.pointChange).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.Turnover ?? detail.turnover ?? 0).toLocaleString() + '</div>' +
-                '<div>' + Number(detail.volume ?? 0).toLocaleString() + '</div>' +
-                '<div>' + Number(stock.ltp - stock.pointChange ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(stock.cp ?? stock.close ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.previousClose ?? 0).toFixed(2) + '</div>';
-            table.appendChild(row);
-        });
+        fillTableRows("topLosersTable", rows);
     } catch (error) { console.error("NEPSE API ERROR:", error); }
 }
 
-/* Top Turnover */
 async function fetchTopTurnover() {
     try {
-        var response = await fetch('/api/TopTenTurnoverScrips');
-        var response1 = await fetch('/api/TradeTurnoverTransactionSubindices');
+        removeLoadingEl("moversLoading");
+        var [response, response1] = await Promise.all([
+            fetch('/api/TopTenTurnoverScrips'),
+            fetch('/api/TradeTurnoverTransactionSubindices')
+        ]);
         if (!response.ok) throw new Error("HTTP " + response.status);
         var data = await response.json();
         var data1 = await response1.json();
         if (!Array.isArray(data)) { data = data.data || data.scripsDetails || []; }
         var top10 = data.slice(0, 10);
         var allStocks = data1.scripsDetails || {};
-        var scripsDetails = {};
-        top10.forEach(function (topStock) {
-            var symbol = String(topStock.symbol).trim().toUpperCase();
-            scripsDetails[symbol] = allStocks[symbol] || topStock;
+        var details = buildDetailMap(top10, allStocks);
+        var rows = top10.map(function (stock) {
+            var sym = String(stock.symbol).trim().toUpperCase();
+            var d = details[sym] || {};
+            var tr = document.createElement("tr");
+            tr.dataset.symbol = sym;
+            var pctChange = Number(d.percentageChange ?? stock.percentageChange ?? 0);
+            var pctClass = pctChange >= 0 ? "td-up" : "td-down";
+            var pctPrefix = pctChange >= 0 ? "+" : "";
+            var pointChange = Number(d.pointChange ?? stock.pointChange ?? 0);
+            var pointPrefix = pointChange >= 0 ? "+" : "";
+            tr.innerHTML =
+                '<td class="td-symbol">' + (stock.symbol ?? "-") + '</td>' +
+                '<td>' + Number(d.ltp ?? stock.closingPrice ?? 0).toFixed(2) + '</td>' +
+                '<td class="' + pctClass + '">' + pctPrefix + pctChange.toFixed(2) + '%</td>' +
+                '<td class="' + pctClass + '">' + pointPrefix + pointChange.toFixed(2) + '</td>' +
+                '<td>' + Number(d.turnover ?? d.Turnover ?? stock.turnover ?? 0).toLocaleString() + '</td>' +
+                '<td>' + Number(d.volume ?? 0).toLocaleString() + '</td>' +
+                '<td>' + Number(d.open ?? d.ltp - (d.pointChange ?? 0) ?? 0).toFixed(2) + '</td>' +
+                '<td>' + Number(d.cp ?? d.close ?? stock.closingPrice ?? 0).toFixed(2) + '</td>' +
+                '<td>' + Number(d.previousClose ?? 0).toFixed(2) + '</td>';
+            return tr;
         });
-        var table = document.getElementById("topGainersTable");
-        table.innerHTML = "";
-        top10.forEach(function (stock) {
-            var symbol = String(stock.symbol).trim().toUpperCase();
-            var detail = scripsDetails[symbol] || {};
-            var row = document.createElement("div");
-            row.className = "ide clickable-row";
-            row.dataset.symbol = symbol;
-            row.innerHTML =
-                '<div>' + (stock.symbol ?? "-") + '</div>' +
-                '<div>' + Number(detail.ltp ?? stock.closingPrice ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.percentageChange ?? stock.percentageChange ?? 0).toFixed(2) + '%</div>' +
-                '<div>' + Number(detail.pointChange ?? stock.pointChange ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.turnover ?? detail.Turnover ?? stock.turnover ?? 0).toLocaleString() + '</div>' +
-                '<div>' + Number(detail.volume ?? 0).toLocaleString() + '</div>' +
-                '<div>' + Number(detail.open ?? detail.ltp - (detail.pointChange ?? 0) ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.cp ?? detail.close ?? stock.closingPrice ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.previousClose ?? 0).toFixed(2) + '</div>';
-            table.appendChild(row);
-        });
+        document.getElementById("topLosersTable").innerHTML = "";
+        fillTableRows("topGainersTable", rows);
     } catch (error) { console.error("TURNOVER API ERROR:", error); }
 }
 
-/* Top Volume */
 async function fetchTopVolume() {
     try {
-        var response = await fetch('/api/TopTenTransactionScrips');
-        var response1 = await fetch('/api/TradeTurnoverTransactionSubindices');
+        removeLoadingEl("moversLoading");
+        var [response, response1] = await Promise.all([
+            fetch('/api/TopTenTransactionScrips'),
+            fetch('/api/TradeTurnoverTransactionSubindices')
+        ]);
         if (!response.ok) throw new Error("HTTP " + response.status);
         var data = await response.json();
         var data1 = await response1.json();
         if (!Array.isArray(data)) { data = data.data || data.scripsDetails || []; }
         var top10 = data.slice(0, 10);
         var allStocks = data1.scripsDetails || {};
-        var scripsDetails = {};
-        top10.forEach(function (topStock) {
-            var symbol = String(topStock.symbol).trim().toUpperCase();
-            scripsDetails[symbol] = allStocks[symbol] || topStock;
+        var details = buildDetailMap(top10, allStocks);
+        var rows = top10.map(function (stock) {
+            var sym = String(stock.symbol).trim().toUpperCase();
+            var d = details[sym] || {};
+            var tr = document.createElement("tr");
+            tr.dataset.symbol = sym;
+            var pctChange = Number(d.percentageChange ?? stock.percentageChange ?? 0);
+            var pctClass = pctChange >= 0 ? "td-up" : "td-down";
+            var pctPrefix = pctChange >= 0 ? "+" : "";
+            var pointChange = Number(d.pointChange ?? stock.pointChange ?? 0);
+            var pointPrefix = pointChange >= 0 ? "+" : "";
+            tr.innerHTML =
+                '<td class="td-symbol">' + (stock.symbol ?? "-") + '</td>' +
+                '<td>' + Number(d.ltp ?? stock.lastTradedPrice ?? 0).toFixed(2) + '</td>' +
+                '<td class="' + pctClass + '">' + pctPrefix + pctChange.toFixed(2) + '%</td>' +
+                '<td class="' + pctClass + '">' + pointPrefix + pointChange.toFixed(2) + '</td>' +
+                '<td>' + Number(d.turnover ?? d.Turnover ?? stock.turnover ?? 0).toLocaleString() + '</td>' +
+                '<td>' + Number(d.volume ?? 0).toLocaleString() + '</td>' +
+                '<td>' + Number(d.open ?? d.ltp - (d.pointChange ?? 0) ?? 0).toFixed(2) + '</td>' +
+                '<td>' + Number(d.cp ?? d.close ?? stock.lastTradedPrice ?? 0).toFixed(2) + '</td>' +
+                '<td>' + Number(d.previousClose ?? 0).toFixed(2) + '</td>';
+            return tr;
         });
-        var table = document.getElementById("topGainersTable");
-        table.innerHTML = "";
-        top10.forEach(function (stock) {
-            var symbol = String(stock.symbol).trim().toUpperCase();
-            var detail = scripsDetails[symbol] || {};
-            var row = document.createElement("div");
-            row.className = "ide clickable-row";
-            row.dataset.symbol = symbol;
-            row.innerHTML =
-                '<div>' + (stock.symbol ?? "-") + '</div>' +
-                '<div>' + Number(detail.ltp ?? stock.lastTradedPrice ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.percentageChange ?? stock.percentageChange ?? 0).toFixed(2) + '%</div>' +
-                '<div>' + Number(detail.pointChange ?? stock.pointChange ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.turnover ?? detail.Turnover ?? stock.turnover ?? 0).toLocaleString() + '</div>' +
-                '<div>' + Number(detail.volume ?? 0).toLocaleString() + '</div>' +
-                '<div>' + Number(detail.open ?? detail.ltp - (detail.pointChange ?? 0) ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.cp ?? detail.close ?? stock.lastTradedPrice ?? 0).toFixed(2) + '</div>' +
-                '<div>' + Number(detail.previousClose ?? 0).toFixed(2) + '</div>';
-            table.appendChild(row);
-        });
+        document.getElementById("topLosersTable").innerHTML = "";
+        fillTableRows("topGainersTable", rows);
     } catch (error) { console.error("VOLUME API ERROR:", error); }
 }
 
-/* Search / Company List */
-async function fetchCompanyList() {
+/* ===== Search (debounced + cached) ===== */
+var companyListCache = null;
+
+function initSearch() {
     var search = document.querySelector(".search");
     var searchResults = document.getElementById("searchResults");
     var activeIndex = -1;
-    var currentItems = [];
 
     function highlight(text, query) {
         var safeText = String(text ?? "");
@@ -414,7 +477,6 @@ async function fetchCompanyList() {
     }
 
     function renderResults(results, query) {
-        currentItems = results;
         if (results.length === 0) {
             searchResults.innerHTML = '<div class="search-empty">No stocks found for "<strong>' + escapeHtml(query) + '"</strong></div>';
             return;
@@ -436,21 +498,32 @@ async function fetchCompanyList() {
         });
     }
 
-    search.addEventListener("input", async function (event) {
+    function filterCompanies(companies, query) {
+        return companies.filter(function (stock) {
+            var name = String(stock.symbol || stock.securityName || "").toLowerCase();
+            return query.toLowerCase().split(" ").every(function (word) { return name.includes(word); });
+        }).slice(0, 12);
+    }
+
+    var debouncedSearch = debounce(async function (query) {
+        activeIndex = -1;
+        searchResults.style.display = "block";
+        try {
+            if (!companyListCache) {
+                var response = await fetch("/api/CompanyList");
+                if (!response.ok) throw new Error("HTTP " + response.status);
+                companyListCache = await response.json();
+            }
+            var results = filterCompanies(companyListCache, query);
+            renderResults(results, query);
+        } catch (error) { console.error("Search error:", error); }
+    }, 250);
+
+    search.addEventListener("input", function (event) {
         var query = event.target.value.trim().replace(/\s+/g, " ");
         activeIndex = -1;
         if (!query) { searchResults.innerHTML = ""; searchResults.style.display = "none"; return; }
-        searchResults.style.display = "block";
-        try {
-            var response = await fetch("/api/CompanyList");
-            if (!response.ok) throw new Error("HTTP " + response.status);
-            var companies = await response.json();
-            var results = companies.filter(function (stock) {
-                var name = String(stock.symbol || stock.securityName || "").toLowerCase();
-                return query.toLowerCase().split(" ").every(function (word) { return name.includes(word); });
-            }).slice(0, 12);
-            renderResults(results, query);
-        } catch (error) { console.error("Search error:", error); }
+        debouncedSearch(query);
     });
 
     search.addEventListener("keydown", function (event) {
@@ -484,7 +557,7 @@ async function fetchCompanyList() {
     });
 }
 
-/* Sub Indices (scrolling) */
+/* ===== Sub Indices (scrolling marquee) ===== */
 async function fetchSubIndices() {
     try {
         var response = await fetch("/api/NepseSubIndices");
@@ -515,37 +588,36 @@ async function fetchSubIndices() {
         });
     } catch (error) { console.error("Subindices error:", error); }
 }
-fetchSubIndices();
 
-/* Sub Indices Details (table) */
+/* ===== Sub Indices Details (table) ===== */
 async function fetchSubIndicesDetails() {
     try {
+        removeLoadingEl("subindicesLoading");
         var response = await fetch("/api/NepseSubIndices");
         if (!response.ok) throw new Error("HTTP " + response.status);
         var data = await response.json();
         var subindices = Object.values(data);
         subindices.sort(function (a, b) { return String(a.index ?? "").localeCompare(String(b.index ?? "")); });
-        var table = document.getElementById("subindicesTable");
-        table.innerHTML = "";
+        var tbody = document.getElementById("subindicesTable");
+        tbody.innerHTML = "";
         subindices.forEach(function (index) {
             var change = Number(index.change ?? 0);
             var perChange = Number(index.perChange ?? 0);
             var isUp = change >= 0;
-            var color = isUp ? "#16a34a" : "#dc2626";
-            var row = document.createElement("div");
-            row.className = "ide sub-ide";
-            row.innerHTML =
-                '<div>' + (index.index ?? "-") + '</div>' +
-                '<div>' + Number(index.currentValue ?? 0).toFixed(2) + '</div>' +
-                '<div style="color:' + color + '">' + change.toFixed(2) + '</div>' +
-                '<div style="color:' + color + '">' + perChange.toFixed(2) + '%</div>';
-            table.appendChild(row);
+            var colorClass = isUp ? "td-up" : "td-down";
+            var prefix = isUp ? "+" : "";
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+                '<td>' + (index.index ?? "-") + '</td>' +
+                '<td>' + Number(index.currentValue ?? 0).toFixed(2) + '</td>' +
+                '<td class="' + colorClass + '">' + prefix + change.toFixed(2) + '</td>' +
+                '<td class="' + colorClass + '">' + prefix + perChange.toFixed(2) + '%</td>';
+            tbody.appendChild(tr);
         });
     } catch (error) { console.error("Subindices details error:", error); }
 }
-fetchSubIndicesDetails();
 
-/* Index Chart */
+/* ===== Index Chart ===== */
 async function fetchIndexChart() {
     try {
         var response = await fetch("/api/DailyNepseIndexGraph");
@@ -554,9 +626,8 @@ async function fetchIndexChart() {
         if (!Array.isArray(data) || data.length === 0) return;
         var points = [];
         data.forEach(function (item) {
-            var pair = item;
-            if (Array.isArray(pair) && pair.length >= 2) {
-                points.push({ t: Number(pair[0]), v: Number(pair[1]) });
+            if (Array.isArray(item) && item.length >= 2) {
+                points.push({ t: Number(item[0]), v: Number(item[1]) });
             }
         });
         if (points.length === 0) return;
@@ -567,35 +638,32 @@ async function fetchIndexChart() {
         drawLineChart("indexChart", labels, values);
     } catch (error) { console.error("Index chart error:", error); }
 }
-fetchIndexChart();
 
-/* Clicking any stock row opens its detail page */
+/* ===== Clicking stock row opens detail page ===== */
 document.addEventListener("click", function (event) {
-    var row = event.target.closest(".ide.clickable-row");
+    var row = event.target.closest("tr[data-symbol]");
     if (row && row.dataset.symbol) {
         window.location.href = "/stock/" + encodeURIComponent(row.dataset.symbol);
     }
 });
 
-/* Tab switching */
+/* ===== Tab switching ===== */
 var Gainer = document.getElementById("Gainer");
 var Loser = document.getElementById("Loser");
 var turnover = document.getElementById("turnover");
 var volume = document.getElementById("volume");
-var gainersTable = document.getElementById("topGainersTable");
-var losersTable = document.getElementById("topLosersTable");
 
 function setActiveTab(btn) {
     [Gainer, Loser, turnover, volume].forEach(function (b) { b.classList.remove("active"); });
     btn.classList.add("active");
 }
 
-Gainer.addEventListener("click", function () { setActiveTab(Gainer); losersTable.innerHTML = ""; fetchTopGainers(); });
-Loser.addEventListener("click", function () { setActiveTab(Loser); gainersTable.innerHTML = ""; fetchTopLosers(); });
-turnover.addEventListener("click", function () { setActiveTab(turnover); losersTable.innerHTML = ""; gainersTable.innerHTML = ""; fetchTopTurnover(); });
-volume.addEventListener("click", function () { setActiveTab(volume); losersTable.innerHTML = ""; gainersTable.innerHTML = ""; fetchTopVolume(); });
+Gainer.addEventListener("click", function () { setActiveTab(Gainer); fetchTopGainers(); });
+Loser.addEventListener("click", function () { setActiveTab(Loser); fetchTopLosers(); });
+turnover.addEventListener("click", function () { setActiveTab(turnover); fetchTopTurnover(); });
+volume.addEventListener("click", function () { setActiveTab(volume); fetchTopVolume(); });
 
-/* Global Prices (Gold) */
+/* ===== Global Prices (Gold) ===== */
 async function fetchGlobalPrices() {
     try {
         var response = await fetch("/api/global-prices");
@@ -612,11 +680,18 @@ async function fetchGlobalPrices() {
     } catch (e) { console.log("Global prices error:", e.message); }
 }
 
-/* Init */
-fetchNepseIndex();
-fetchGlobalPrices();
-fetchCompanyList();
-fetchTopGainers();
+/* ===== Init (parallel) ===== */
+initSearch();
 setActiveTab(Gainer);
+
+Promise.allSettled([
+    fetchNepseIndex(),
+    fetchGlobalPrices(),
+    fetchTopGainers(),
+    fetchSubIndices(),
+    fetchSubIndicesDetails(),
+    fetchIndexChart()
+]);
+
 setInterval(fetchNepseIndex, 10000);
 setInterval(fetchGlobalPrices, 60000);

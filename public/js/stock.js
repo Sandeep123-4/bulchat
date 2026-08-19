@@ -8,26 +8,7 @@ function crore(value) {
     return nf.format(v) + " (" + (v / 10000000).toFixed(2) + " Cr)";
 }
 
-function applyTheme() {
-    var saved = localStorage.getItem("theme");
-    if (saved === "light") {
-        document.body.classList.add("light-theme");
-        document.getElementById("themeToggle").textContent = "Dark Mode";
-    } else {
-        document.body.classList.remove("light-theme");
-        document.getElementById("themeToggle").textContent = "Light Mode";
-    }
-}
 
-document.getElementById("themeToggle").addEventListener("click", function () {
-    document.body.classList.toggle("light-theme");
-    var isLight = document.body.classList.contains("light-theme");
-    localStorage.setItem("theme", isLight ? "light" : "dark");
-    document.getElementById("themeToggle").textContent = isLight ? "Dark Mode" : "Light Mode";
-    if (window.redrawCharts) { window.redrawCharts(); }
-});
-
-applyTheme();
 
 async function loadStock() {
     try {

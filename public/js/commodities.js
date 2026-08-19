@@ -1,23 +1,5 @@
 /* Mudraaa Commodities */
 
-function applyTheme() {
-    var saved = localStorage.getItem("theme");
-    if (saved === "light") {
-        document.body.classList.add("light-theme");
-        document.getElementById("themeToggle").textContent = "Dark Mode";
-    } else {
-        document.body.classList.remove("light-theme");
-        document.getElementById("themeToggle").textContent = "Light Mode";
-    }
-}
-document.getElementById("themeToggle").addEventListener("click", function () {
-    document.body.classList.toggle("light-theme");
-    var isLight = document.body.classList.contains("light-theme");
-    localStorage.setItem("theme", isLight ? "light" : "dark");
-    document.getElementById("themeToggle").textContent = isLight ? "Dark Mode" : "Light Mode";
-});
-applyTheme();
-
 var nf = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 var nfInt = new Intl.NumberFormat("en-US");
 

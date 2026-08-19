@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1684472482346109"
-     crossorigin="anonymous"></script>
+ crossorigin="anonymous"></script>
 <title>Sign Up | Mudraaa</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="/css/base.css">
 <link rel="stylesheet" href="/css/auth.css">
@@ -22,40 +24,60 @@
 Mudraaa
 </div>
 
-<div class="subtitle">
-Create your account
+<!-- Step 1: Account Details -->
+<div id="step1" class="auth-step active">
+    <div class="subtitle">Create your account</div>
+
+    <form id="signupForm">
+        <input type="text" name="username" id="usernameInput" placeholder="Username" required>
+        <input type="email" name="email" id="emailInput" placeholder="Email" required>
+        <div class="email-status" id="emailStatus"></div>
+        <input type="password" name="password" id="passwordInput" placeholder="Password" required>
+        <button type="submit" id="sendOtpBtn">Send Verification Code</button>
+    </form>
+
+    <div class="bottom">
+        Already have an account?
+        <a href="/login">Login</a>
+    </div>
 </div>
 
-<form action="/signup" method="POST">
+<!-- Step 2: OTP Verification -->
+<div id="step2" class="auth-step">
+    <div class="subtitle" id="otpSubtitle">Enter the 6-digit code sent to your email</div>
 
-<input
-type="text"
-name="username"
-placeholder="Username"
-required>
+    <div class="otp-email-display" id="otpEmailDisplay"></div>
 
-<input
-type="email"
-name="email"
-id="emailInput"
-placeholder="Email"
-required>
+    <form id="otpForm">
+        <div class="otp-inputs" id="otpInputs">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" data-index="0">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" data-index="1">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" data-index="2">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" data-index="3">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" data-index="4">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" data-index="5">
+        </div>
+        <div class="otp-error" id="otpError"></div>
+        <button type="submit" id="verifyOtpBtn">Verify & Create Account</button>
+    </form>
 
-<div class="email-status" id="emailStatus"></div>
+    <div class="otp-resend">
+        <span id="otpTimer">Resend code in <strong>60s</strong></span>
+        <button type="button" id="resendBtn" class="otp-resend-link" style="display:none;">Resend Code</button>
+    </div>
 
-<input
-type="password"
-name="password"
-placeholder="Password"
-required>
+    <div class="bottom">
+        <a href="#" id="backToStep1">Back to signup</a>
+    </div>
+</div>
 
-<button>Create Account</button>
-
-</form>
-
-<div class="bottom">
-Already have an account?
-<a href="/login">Login</a>
+<!-- Step 3: Success -->
+<div id="step3" class="auth-step">
+    <div class="otp-success-icon">&#10003;</div>
+    <div class="subtitle">Account created successfully!</div>
+    <div class="bottom">
+        <a href="/login">Go to Login</a>
+    </div>
 </div>
 
 </div>

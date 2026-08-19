@@ -3,10 +3,18 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
+const { Resend } = require("resend");
 const User = require("../models/user");
+const Otp = require("../models/Otp");
 const Message = require("../models/Message");
 
 const router = express.Router();
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+let logoBase64 = "";
+try {
+    logoBase64 = fs.readFileSync(path.join(__dirname, "public", "img", "logo.png")).toString("base64");
+} catch (_) {}
 
 // Landing Page
 router.get("/", (req, res) => {
@@ -40,13 +48,115 @@ router.get("/api/check-email", async (req, res) => {
     }
 });
 
-// Signup
-router.post("/signup", async (req, res) => {
+// Send OTP for signup
+router.post("/api/send-otp", async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
+        if (!username || !email || !password) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
         const existing = await User.findOne({ email });
-        if (existing) return res.send("Email already exists");
+        if (existing) {
+            return res.status(400).json({ error: "Email already exists" });
+        }
+
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+        await Otp.deleteMany({ email, verified: false });
+
+        await Otp.create({
+            email,
+            otp,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+        });
+
+        try {
+            const emailHtml = `
+                    <div style="font-family:Inter,sans-serif;max-width:440px;margin:0 auto;padding:40px 20px;">
+                        <div style="text-align:center;margin-bottom:32px;">
+                            <img
+  src="https://mudraaa.tech/img/logo.png"
+  alt="Mudraaa"
+  width="60"
+  height="60"
+  style="border-radius:14px;display:block;margin:0 auto 12px;"
+>
+                            <span style="font-size:22px;font-weight:700;color:#111827;letter-spacing:-0.5px;">Mudraaa</span>
+                        </div>
+                        <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px 28px;">
+                            <h2 style="color:#111827;font-size:20px;margin:0 0 8px;text-align:center;">Verify your email</h2>
+                            <p style="color:#6b7280;font-size:14px;margin:0 0 28px;text-align:center;line-height:1.5;">
+                                Use the following OTP to complete your Mudraaa signup. This code expires in <strong>10 minutes</strong>.
+                            </p>
+                            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+                                <p style="margin:0;text-align:center;font-family:monospace;font-size:36px;font-weight:800;letter-spacing:12px;color:#2EA043;user-select:all;-webkit-user-select:all;">${otp}</p>
+                            </div>
+                            <p style="color:#9ca3af;font-size:12px;text-align:center;margin:0;line-height:1.5;">
+                                If you did not request this, you can safely ignore this email.<br>Do not share this code with anyone.
+                            </p>
+                        </div>
+                        <p style="color:#d1d5db;font-size:11px;text-align:center;margin:24px 0 0;">
+                            Mudraaa &mdash; Real-time market intelligence
+                        </p>
+                    </div>
+                `;
+
+            const attachments = [];
+            if (logoBase64) {
+                attachments.push({
+                    filename: "logo.png",
+                    content: Buffer.from(logoBase64, "base64"),
+                    content_id: "mudraaa-logo",
+                    disposition: "inline"
+                });
+            }
+
+            await resend.emails.send({
+                from: process.env.RESEND_FROM || "Mudraaa <onboarding@resend.dev>",
+                to: email,
+                subject: "Mudraaa - Verify your email",
+                html: emailHtml,
+                ...(attachments.length ? { attachments } : {})
+            });
+            console.log(`[OTP] Sent to ${email}: ${otp}`);
+            res.json({ success: true, message: "OTP sent to your email" });
+        } catch (emailErr) {
+            console.error("RESEND ERROR:", emailErr);
+            console.log(`[OTP] Dev fallback — code for ${email}: ${otp}`);
+            res.json({ success: true, message: "OTP sent to your email", _devOtp: otp });
+        }
+    } catch (err) {
+        console.error("SEND OTP ERROR:", err);
+        res.status(500).json({ error: "Failed to send OTP. Please try again." });
+    }
+});
+
+// Verify OTP and create account
+router.post("/api/verify-otp", async (req, res) => {
+    try {
+        const { username, email, password, otp } = req.body;
+
+        if (!username || !email || !password || !otp) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
+        const record = await Otp.findOne({
+            email,
+            otp,
+            verified: false,
+            expiresAt: { $gt: new Date() }
+        });
+
+        if (!record) {
+            return res.status(400).json({ error: "Invalid or expired OTP" });
+        }
+
+        const existing = await User.findOne({ email });
+        if (existing) {
+            return res.status(400).json({ error: "Email already exists" });
+        }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -56,9 +166,12 @@ router.post("/signup", async (req, res) => {
             password: hashedPassword
         });
 
-        res.redirect("/");
+        await Otp.deleteMany({ email });
+
+        res.json({ success: true, message: "Account created successfully" });
     } catch (err) {
-        res.send(err.message);
+        console.error("VERIFY OTP ERROR:", err);
+        res.status(500).json({ error: "Failed to verify OTP. Please try again." });
     }
 });
 
