@@ -877,7 +877,7 @@ app.post(BROADCAST_PATH, async (req, res) => {
                     <html>
                     <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
                     <body style="margin:0;padding:0;background:#f4f5f7;font-family:Inter,Helvetica,Arial,sans-serif;">
-                    <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+                    <div style="width:100%;margin:0 auto;padding:40px 20px;">
                         <div style="text-align:center;margin-bottom:32px;">
                             <img src="https://mudraaa.tech/img/logo.png" alt="Mudraaa" width="52" height="52" style="border-radius:14px;display:block;margin:0 auto 12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                             <span style="font-size:20px;font-weight:800;color:#111827;letter-spacing:-0.3px;">Mudraaa</span>
