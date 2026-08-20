@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/img/logo.png">
+    <link rel="apple-touch-icon" href="/img/logo.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B5V2XQ7G14"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-B5V2XQ7G14');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News | Mudraaa - Market Intelligence</title>
+    <meta name="description" content="Stay updated with the latest NEPSE market news, stock analysis, and financial insights from Mudraaa.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/news-public.css">
+</head>
+<body class="light-theme">
+
+<nav class="navbar">
+    <a class="logo" href="/" aria-label="Mudraaa home">
+        <img class="logo-img" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
+    </a>
+    <div class="nav-links">
+        <button id="themeBtn" class="btn btn-ghost btn-sm"></button>
+        <a class="btn btn-ghost" href="/login">Log In</a>
+        <a class="btn btn-primary" href="/signup">Sign Up</a>
+    </div>
+</nav>
+
+<main class="news-page">
+    <div class="news-container">
+
+        <!-- Trending Section -->
+        <% if (trending.length > 0) { %>
+        <section class="news-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                    Trending
+                </h2>
+                <a href="#latest" class="section-link">See all</a>
+            </div>
+
+            <div class="trending-grid">
+                <% if (trending[0]) { %>
+                <article class="news-card news-card--hero">
+                    <a href="/news/<%= trending[0]._id %>" class="news-card__image-wrap" aria-label="<%= trending[0].title %>">
+                        <% if (trending[0].featuredImage) { %>
+                            <img src="<%= trending[0].featuredImage %>" alt="<%= trending[0].title %>" loading="lazy" class="news-card__image">
+                        <% } else { %>
+                            <div class="news-card__placeholder">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            </div>
+                        <% } %>
+                        <span class="news-card__rank">#1</span>
+                        <% if (trending[0].category) { %>
+                            <span class="news-card__category"><%= trending[0].category %></span>
+                        <% } %>
+                    </a>
+                    <div class="news-card__body">
+                        <h3 class="news-card__title">
+                            <a href="/news/<%= trending[0]._id %>"><%= trending[0].title %></a>
+                        </h3>
+                        <p class="news-card__excerpt"><%= trending[0]._excerpt %></p>
+                        <div class="news-card__meta">
+                            <time datetime="<%= trending[0].publishedAt %>"><%= trending[0]._relativeDate %></time>
+                            <span class="news-card__views">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <%= trending[0].views || 0 %>
+                            </span>
+                            <% if (trending[0]._authorName) { %>
+                                <span class="news-card__author">by <%= trending[0]._authorName %></span>
+                            <% } %>
+                        </div>
+                    </div>
+                </article>
+                <% } %>
+
+                <div class="trending-side">
+                    <% for (var i = 1; i < Math.min(trending.length, 5); i++) { %>
+                    <article class="news-card news-card--row">
+                        <a href="/news/<%= trending[i]._id %>" class="news-card__image-wrap news-card__image-wrap--sm" aria-label="<%= trending[i].title %>">
+                            <% if (trending[i].featuredImage) { %>
+                                <img src="<%= trending[i].featuredImage %>" alt="<%= trending[i].title %>" loading="lazy" class="news-card__image">
+                            <% } else { %>
+                                <div class="news-card__placeholder news-card__placeholder--sm">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                </div>
+                            <% } %>
+                            <span class="news-card__rank news-card__rank--sm">#<%= i + 1 %></span>
+                        </a>
+                        <div class="news-card__body">
+                            <h3 class="news-card__title news-card__title--sm">
+                                <a href="/news/<%= trending[i]._id %>"><%= trending[i].title %></a>
+                            </h3>
+                            <div class="news-card__meta">
+                                <% if (trending[i].category) { %>
+                                    <span class="news-card__category-tag"><%= trending[i].category %></span>
+                                <% } %>
+                                <time datetime="<%= trending[i].publishedAt %>"><%= trending[i]._relativeDate %></time>
+                                <% if (trending[i]._authorName) { %>
+                                    <span class="news-card__author">by <%= trending[i]._authorName %></span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </article>
+                    <% } %>
+                </div>
+            </div>
+        </section>
+        <% } %>
+
+        <!-- Featured Section -->
+        <% if (featured.length > 0) { %>
+        <section class="news-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    Featured
+                </h2>
+            </div>
+            <div class="featured-grid">
+                <% for (var i = 0; i < featured.length; i++) { %>
+                <article class="news-card">
+                    <a href="/news/<%= featured[i]._id %>" class="news-card__image-wrap" aria-label="<%= featured[i].title %>">
+                        <% if (featured[i].featuredImage) { %>
+                            <img src="<%= featured[i].featuredImage %>" alt="<%= featured[i].title %>" loading="lazy" class="news-card__image">
+                        <% } else { %>
+                            <div class="news-card__placeholder">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            </div>
+                        <% } %>
+                        <% if (featured[i].category) { %>
+                            <span class="news-card__category"><%= featured[i].category %></span>
+                        <% } %>
+                        <span class="news-card__badge-star">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            Featured
+                        </span>
+                    </a>
+                    <div class="news-card__body">
+                        <h3 class="news-card__title">
+                            <a href="/news/<%= featured[i]._id %>"><%= featured[i].title %></a>
+                        </h3>
+                        <p class="news-card__excerpt"><%= featured[i]._excerpt %></p>
+                        <div class="news-card__meta">
+                            <time datetime="<%= featured[i].publishedAt %>"><%= featured[i]._relativeDate %></time>
+                            <% if (featured[i]._authorName) { %>
+                                <span class="news-card__author">by <%= featured[i]._authorName %></span>
+                            <% } %>
+                        </div>
+                    </div>
+                </article>
+                <% } %>
+            </div>
+        </section>
+        <% } %>
+
+        <!-- Latest Section -->
+        <section class="news-section" id="latest">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    Latest
+                </h2>
+            </div>
+            <% if (latest.length === 0) { %>
+            <div class="news-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <h3>No news articles yet</h3>
+                <p>Check back soon for market updates.</p>
+            </div>
+            <% } else { %>
+            <div class="latest-grid">
+                <% for (var i = 0; i < latest.length; i++) { %>
+                <article class="news-card news-card--compact">
+                    <a href="/news/<%= latest[i]._id %>" class="news-card__image-wrap news-card__image-wrap--sm" aria-label="<%= latest[i].title %>">
+                        <% if (latest[i].featuredImage) { %>
+                            <img src="<%= latest[i].featuredImage %>" alt="<%= latest[i].title %>" loading="lazy" class="news-card__image">
+                        <% } else { %>
+                            <div class="news-card__placeholder news-card__placeholder--sm">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            </div>
+                        <% } %>
+                    </a>
+                    <div class="news-card__body">
+                        <h3 class="news-card__title news-card__title--sm">
+                            <a href="/news/<%= latest[i]._id %>"><%= latest[i].title %></a>
+                        </h3>
+                        <p class="news-card__excerpt news-card__excerpt--sm"><%= latest[i]._excerpt %></p>
+                        <div class="news-card__meta">
+                            <% if (latest[i].category) { %>
+                                <span class="news-card__category-tag"><%= latest[i].category %></span>
+                            <% } %>
+                            <time datetime="<%= latest[i].publishedAt %>"><%= latest[i]._relativeDate %></time>
+                            <span class="news-card__views">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <%= latest[i].views || 0 %>
+                            </span>
+                            <% if (latest[i]._authorName) { %>
+                                <span class="news-card__author">by <%= latest[i]._authorName %></span>
+                            <% } %>
+                        </div>
+                    </div>
+                </article>
+                <% } %>
+            </div>
+            <% } %>
+        </section>
+
+    </div>
+</main>
+
+<footer class="footer">
+    Mudraaa &copy; 2026. Financial market data provided for informational purposes only.
+</footer>
+
+<script src="/js/news-public.js"></script>
+</body>
+</html>

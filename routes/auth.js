@@ -17,8 +17,49 @@ try {
 } catch (_) {}
 
 // Landing Page
-router.get("/", (req, res) => {
-    res.render("index");
+router.get("/", async (req, res) => {
+    try {
+        const News = require("../models/News");
+        const now = Date.now();
+        const windowMs = 15 * 24 * 60 * 60 * 1000;
+        const windowStart = new Date(now - windowMs);
+
+        const eligible = await News.find({
+            status: "published",
+            publishedAt: { $gte: windowStart }
+        })
+            .select("title excerpt featuredImage category views publishedAt showAuthor author")
+            .populate("author", "username")
+            .lean();
+
+        const maxViews = eligible.reduce((max, p) => Math.max(max, p.views || 0), 0);
+
+        eligible.forEach(p => {
+            const ageHours = Math.max((now - new Date(p.publishedAt).getTime()) / (1000 * 60 * 60), 0);
+            const freshness = 1 / (1 + ageHours / 24);
+            const views = p.views || 0;
+            const viewScore = maxViews > 0 ? views / maxViews : 0;
+            p._score = Math.round((freshness * 0.7 + viewScore * 0.3) * 100) / 100;
+
+            if (!p.showAuthor) {
+                p.author = null;
+            } else if (p.author) {
+                p._authorName = p.author.username || "";
+                p.author = null;
+            }
+            if (!p.featuredImage) p.featuredImage = "";
+            const d = new Date(p.publishedAt);
+            p._date = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        });
+
+        eligible.sort((a, b) => b._score - a._score);
+        const topNews = eligible.slice(0, 10);
+
+        res.render("index", { topNews });
+    } catch (err) {
+        console.error("Landing page news error:", err);
+        res.render("index", { topNews: [] });
+    }
 });
 
 // Login Page

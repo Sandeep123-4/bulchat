@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B5V2XQ7G14"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-B5V2XQ7G14');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post News | Mudraaa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
+
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+<link rel="stylesheet" href="/css/news.css">
+<meta name="username" content="<%= user.username %>">
+</head>
+<body>
+
+<!-- ===== SIDEBAR OVERLAY (mobile) ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+    <div class="sidebar-inner">
+        <div class="sidebar-brand">
+            <img class="sidebar-logo" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
+            <span class="sidebar-brand-text">Mudraaa</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="/chat" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Chat Room</span>
+            </a>
+            <a href="/commodities" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                <span>Commodities</span>
+            </a>
+            <a href="/crypto" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                <span>Crypto</span>
+            </a>
+            <a href="/post-news" class="sidebar-link active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                <span>Post News</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <img class="sidebar-avatar" src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
+                <div class="sidebar-user-info">
+                    <span class="sidebar-username"><%= user.username %></span>
+                    <span class="sidebar-useremail"><%= user.email %></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div>
+                <h1 class="header-title" id="pageTitle">Post News</h1>
+                <p class="header-sub" id="pageSubtitle">Write and publish your articles</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-controls">
+                <button id="themeBtn" class="ctrl-btn" title="Theme">
+                    <svg class="ctrl-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <div class="header-user" id="headerAvatar">
+                    <img src="<%= user.avatar ? '/uploads/' + user.avatar : '/img/profile.png' %>" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="news-content">
+        <!-- Tab Switcher -->
+        <div class="news-tabs">
+            <button class="news-tab active" data-tab="editor">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                Write
+            </button>
+            <button class="news-tab" data-tab="posts">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                My Posts
+            </button>
+        </div>
+
+        <!-- ===== EDITOR TAB ===== -->
+        <div class="news-tab-content active" id="tab-editor">
+            <div class="editor-layout">
+                <!-- Left Column: Editor -->
+                <div class="editor-main">
+                    <div class="editor-card">
+                        <input type="hidden" id="editingPostId" value="">
+
+                        <div class="field-group">
+                            <label class="field-label">Title</label>
+                            <input type="text" id="postTitle" class="field-input" placeholder="Enter article title..." maxlength="300">
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label">Excerpt <span class="field-hint">(short description, max 500 chars)</span></label>
+                            <textarea id="postExcerpt" class="field-textarea" placeholder="Write a brief summary..." maxlength="500" rows="3"></textarea>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label">Article Content</label>
+                            <div id="editor-container">
+                                <div id="quill-editor"></div>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label">Tags <span class="field-hint">(comma separated)</span></label>
+                            <input type="text" id="postTags" class="field-input" placeholder="e.g. NEPSE, stocks, analysis">
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Card -->
+                    <div class="editor-card">
+                        <h3 class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            Images
+                        </h3>
+
+                        <!-- Featured Image -->
+                        <div class="field-group">
+                            <label class="field-label">Featured Image</label>
+                            <div class="featured-upload-area" id="featuredUploadArea">
+                                <div class="featured-placeholder" id="featuredPlaceholder">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                    <span>Click or drag to upload featured image</span>
+                                    <span class="upload-hint">JPG, PNG, WEBP - Max 5MB</span>
+                                </div>
+                                <div class="featured-preview" id="featuredPreview" style="display:none">
+                                    <img id="featuredPreviewImg" src="" alt="Featured">
+                                    <button class="featured-remove" id="featuredRemove" title="Remove">&times;</button>
+                                </div>
+                                <input type="file" id="featuredInput" accept="image/jpeg,image/jpg,image/png,image/webp" hidden>
+                            </div>
+                        </div>
+
+                        <!-- Additional Images -->
+                        <div class="field-group">
+                            <label class="field-label">Additional Images <span class="field-hint">(max 10)</span></label>
+                            <div class="images-grid" id="imagesGrid"></div>
+                            <label class="upload-btn" id="addImagesBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Add Images
+                                <input type="file" id="imagesInput" accept="image/jpeg,image/jpg,image/png,image/webp" multiple hidden>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Attachments Card -->
+                    <div class="editor-card">
+                        <h3 class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                            Attachments
+                        </h3>
+                        <div class="attachments-list" id="attachmentsList"></div>
+                        <label class="upload-btn" id="addAttachBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Add Files
+                            <input type="file" id="attachInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" multiple hidden>
+                        </label>
+                        <span class="upload-hint">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT - Max 20MB each</span>
+                    </div>
+                </div>
+
+                <!-- Right Column: Settings -->
+                <div class="editor-sidebar">
+                    <div class="editor-card sticky-card">
+                        <h3 class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                            Publish Settings
+                        </h3>
+
+                        <div class="field-group">
+                            <label class="field-label">Category</label>
+                            <select id="postCategory" class="field-select">
+                                <option value="General">General</option>
+                                <option value="Market Analysis">Market Analysis</option>
+                                <option value="Stock News">Stock News</option>
+                                <option value="IPO">IPO</option>
+                                <option value="NEPSE Update">NEPSE Update</option>
+                                <option value="Crypto">Crypto</option>
+                                <option value="Commodities">Commodities</option>
+                                <option value="Economy">Economy</option>
+                                <option value="Tutorial">Tutorial</option>
+                                <option value="Opinion">Opinion</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-checkbox">
+                                <input type="checkbox" id="postFeatured">
+                                <span class="field-checkbox-mark"></span>
+                                <span>Featured Article</span>
+                            </label>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-checkbox">
+                                <input type="checkbox" id="postShowAuthor">
+                                <span class="field-checkbox-mark"></span>
+                                <span>Show my name on article</span>
+                            </label>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary" id="btnPreview" type="button">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                Preview
+                            </button>
+                            <button class="btn btn-outline" id="btnSaveDraft" type="button">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                Save Draft
+                            </button>
+                            <button class="btn btn-primary" id="btnPublish" type="button">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                Publish
+                            </button>
+                            <button class="btn btn-outline btn-cancel-edit" id="btnCancelEdit" type="button" style="display:none">Cancel Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MY POSTS TAB ===== -->
+        <div class="news-tab-content" id="tab-posts">
+            <div class="posts-toolbar">
+                <div class="posts-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="published">Published</button>
+                    <button class="filter-btn" data-filter="draft">Drafts</button>
+                </div>
+            </div>
+            <div class="posts-grid" id="postsGrid">
+                <div class="posts-loading">
+                    <div class="spinner"></div>
+                    <span>Loading posts...</span>
+                </div>
+            </div>
+            <div class="posts-empty" id="postsEmpty" style="display:none">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <h3>No posts yet</h3>
+                <p>Write your first article to get started.</p>
+                <button class="btn btn-primary" onclick="switchTab('editor')">Write Article</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PREVIEW MODAL ===== -->
+<div class="preview-modal" id="previewModal">
+    <div class="preview-overlay" id="previewOverlay"></div>
+    <div class="preview-panel">
+        <div class="preview-header">
+            <h3>Post Preview</h3>
+            <button class="preview-close" id="previewClose">&times;</button>
+        </div>
+        <div class="preview-body" id="previewBody"></div>
+    </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/news.js"></script>
+</body>
+</html>

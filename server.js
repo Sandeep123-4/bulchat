@@ -720,6 +720,8 @@ mongoose.connect(process.env.MONGO_URI)
 // Routes
 app.set("io", io);
 app.use("/", require("./routes/auth"));
+app.use("/", require("./routes/news"));
+app.use("/", require("./routes/public"));
 
 // Socket.IO
 const users = {};

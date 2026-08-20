@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/img/logo.png">
+    <link rel="apple-touch-icon" href="/img/logo.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B5V2XQ7G14"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-B5V2XQ7G14');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post.title %> | Mudraaa</title>
+    <meta name="description" content="<%= post._excerpt %>">
+    <meta property="og:title" content="<%= post.title %>">
+    <meta property="og:description" content="<%= post._excerpt %>">
+    <% if (post.featuredImage) { %>
+    <meta property="og:image" content="<%= post.featuredImage %>">
+    <% } %>
+    <meta property="og:type" content="article">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/news-public.css">
+</head>
+<body class="light-theme">
+
+<nav class="navbar">
+    <a class="logo" href="/" aria-label="Mudraaa home">
+        <img class="logo-img" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
+    </a>
+    <div class="nav-links">
+        <button id="themeBtn" class="btn btn-ghost btn-sm"></button>
+        <a class="btn btn-ghost" href="/login">Log In</a>
+        <a class="btn btn-primary" href="/signup">Sign Up</a>
+    </div>
+</nav>
+
+<main class="article-page">
+    <article class="article" data-article-id="<%= post._id %>">
+        <header class="article__header">
+            <div class="article__meta-top">
+                <% if (post.category) { %>
+                    <a href="/news" class="article__category"><%= post.category %></a>
+                <% } %>
+                <time datetime="<%= post.publishedAt %>"><%= post._fullDate %></time>
+                <span class="article__views" id="articleViews">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span id="viewCount"><%= post.views || 0 %></span> views
+                </span>
+            </div>
+            <h1 class="article__title"><%= post.title %></h1>
+            <% if (post._excerpt) { %>
+                <p class="article__excerpt"><%= post._excerpt %></p>
+            <% } %>
+            <% if (post._authorName) { %>
+            <div class="article__author">
+                <% if (post._authorAvatar) { %>
+                    <img src="<%= post._authorAvatar %>" alt="<%= post._authorName %>" class="article__author-avatar">
+                <% } else { %>
+                    <div class="article__author-avatar article__author-avatar--fallback"><%= post._authorName.charAt(0).toUpperCase() %></div>
+                <% } %>
+                <span class="article__author-name"><%= post._authorName %></span>
+            </div>
+            <% } %>
+        </header>
+
+        <% if (post.featuredImage) { %>
+        <div class="article__featured">
+            <img src="<%= post.featuredImage %>" alt="<%= post.title %>" class="article__featured-img">
+        </div>
+        <% } %>
+
+        <div class="article__content article-body">
+            <%- post.content %>
+        </div>
+
+        <% if (post.attachments && post.attachments.length > 0) { %>
+        <div class="article__attachments">
+            <h3>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                Attachments
+            </h3>
+            <% for (var i = 0; i < post.attachments.length; i++) { %>
+            <a href="<%= post.attachments[i].path %>" class="attachment-link" download target="_blank" rel="noopener">
+                <span class="attachment-ext"><%= post.attachments[i].originalName.split('.').pop().toUpperCase() %></span>
+                <span class="attachment-name"><%= post.attachments[i].originalName %></span>
+            </a>
+            <% } %>
+        </div>
+        <% } %>
+
+        <% if (post.tags && post.tags.length > 0) { %>
+        <div class="article__tags">
+            <% for (var i = 0; i < post.tags.length; i++) { %>
+                <span class="tag"><%= post.tags[i] %></span>
+            <% } %>
+        </div>
+        <% } %>
+    </article>
+
+    <% if (recent.length > 0) { %>
+    <aside class="recent-articles">
+        <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Recent Articles
+        </h2>
+        <div class="recent-grid">
+            <% for (var i = 0; i < recent.length; i++) { %>
+            <article class="news-card news-card--compact">
+                <a href="/news/<%= recent[i]._id %>" class="news-card__image-wrap news-card__image-wrap--sm" aria-label="<%= recent[i].title %>">
+                    <% if (recent[i].featuredImage) { %>
+                        <img src="<%= recent[i].featuredImage %>" alt="<%= recent[i].title %>" loading="lazy" class="news-card__image">
+                    <% } else { %>
+                        <div class="news-card__placeholder news-card__placeholder--sm">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        </div>
+                    <% } %>
+                </a>
+                <div class="news-card__body">
+                    <h3 class="news-card__title news-card__title--sm">
+                        <a href="/news/<%= recent[i]._id %>"><%= recent[i].title %></a>
+                    </h3>
+                    <div class="news-card__meta">
+                        <% if (recent[i].category) { %>
+                            <span class="news-card__category-tag"><%= recent[i].category %></span>
+                        <% } %>
+                        <time datetime="<%= recent[i].publishedAt %>"><%= recent[i]._relativeDate %></time>
+                    </div>
+                </div>
+            </article>
+            <% } %>
+        </div>
+    </aside>
+    <% } %>
+</main>
+
+<footer class="footer">
+    Mudraaa &copy; 2026. Financial market data provided for informational purposes only.
+</footer>
+
+<script src="/js/news-public.js"></script>
+</body>
+</html>
