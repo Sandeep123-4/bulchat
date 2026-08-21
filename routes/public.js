@@ -4,6 +4,10 @@ const User = require("../models/user");
 
 const router = express.Router();
 
+// ── News Page Cache (30 seconds) ────────────────────────────────
+const newsCache = { data: null, expires: 0 };
+const NEWS_CACHE_TTL = 30000;
+
 // ── Helpers ──────────────────────────────────────────────────────
 
 function stripHtml(html) {
@@ -57,6 +61,11 @@ function formatFullDate(date) {
 
 router.get("/news", async function (req, res) {
     try {
+        // Serve from cache if fresh
+        if (newsCache.data && Date.now() < newsCache.expires) {
+            return res.render("news", newsCache.data);
+        }
+
         var now = Date.now();
         var windowMs = 15 * 24 * 60 * 60 * 1000;
         var windowStart = new Date(now - windowMs);
@@ -106,11 +115,17 @@ router.get("/news", async function (req, res) {
             return new Date(b.publishedAt) - new Date(a.publishedAt);
         }).slice(0, 12);
 
-        res.render("news", {
+        var renderData = {
             trending: trending,
             featured: featured,
             latest: latest
-        });
+        };
+
+        // Cache the rendered data
+        newsCache.data = renderData;
+        newsCache.expires = Date.now() + NEWS_CACHE_TTL;
+
+        res.render("news", renderData);
     } catch (err) {
         console.error("Public news page error:", err);
         res.status(500).send("Error loading news");
@@ -159,6 +174,12 @@ router.get("/news/:id", async function (req, res) {
         res.status(500).send("Error loading article");
     }
 });
+
+// ── Cache invalidation helper (called after news create/update/delete) ──
+router._invalidateNewsCache = function () {
+    newsCache.data = null;
+    newsCache.expires = 0;
+};
 
 // ── View Increment (public, rate-limited per IP per article) ────
 

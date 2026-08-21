@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
+const sharp = require("sharp");
 const { Resend } = require("resend");
 const User = require("../models/user");
 const Otp = require("../models/Otp");
@@ -11,12 +12,23 @@ const Message = require("../models/Message");
 const router = express.Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Larger body limit only for the avatar upload route (base64 image ≈ 5MB × 4/3).
+const avatarJsonParser = express.json({ limit: "8mb" });
+
 let logoBase64 = "";
 try {
     logoBase64 = fs.readFileSync(path.join(__dirname, "public", "img", "logo.png")).toString("base64");
 } catch (_) {}
 
-// Landing Page
+// Landing Page - Cached news for fast initial load
+const { cacheGet: getCache, cacheSet: setCache } = (() => {
+    const _c = new Map();
+    return {
+        cacheGet(k) { const e = _c.get(k); if (!e) return null; if (Date.now() > e.x) { _c.delete(k); return null; } return e.d; },
+        cacheSet(k, d, t) { _c.set(k, { d, x: Date.now() + t }); }
+    };
+})();
+
 router.get("/", async (req, res) => {
     try {
         const News = require("../models/News");
@@ -24,12 +36,15 @@ router.get("/", async (req, res) => {
         const windowMs = 15 * 24 * 60 * 60 * 1000;
         const windowStart = new Date(now - windowMs);
 
+        // Use a limit on the query itself instead of fetching all published posts
         const eligible = await News.find({
             status: "published",
             publishedAt: { $gte: windowStart }
         })
             .select("title excerpt featuredImage category views publishedAt showAuthor author")
             .populate("author", "username")
+            .sort({ publishedAt: -1 })
+            .limit(50)
             .lean();
 
         const maxViews = eligible.reduce((max, p) => Math.max(max, p.views || 0), 0);
@@ -427,7 +442,7 @@ router.post("/profile/update", async (req, res) => {
     }
 });
 // Profile picture upload
-router.post("/api/profile/avatar", async (req, res) => {
+router.post("/api/profile/avatar", avatarJsonParser, async (req, res) => {
     try {
         const token = req.cookies.token;
 
@@ -478,24 +493,32 @@ router.post("/api/profile/avatar", async (req, res) => {
         }
 
         const filename = `avatar-${user._id}-${Date.now()}.${ext}`;
+        const filePath = path.join(uploadDir, filename);
 
+        fs.writeFileSync(filePath, buffer);
+
+        // Process avatar: resize + convert to WebP for smaller files
+        const webpFilename = `avatar-${user._id}-${Date.now()}.webp`;
+        const webpPath = path.join(uploadDir, webpFilename);
         try {
-            fs.writeFileSync(path.join(uploadDir, filename), buffer);
-        } catch (e) {
-            console.error("AVATAR WRITE ERROR:", e);
-
-            return res.status(500).json({
-                message: "Could not save image on the server"
-            });
+            await sharp(filePath)
+                .resize({ width: 256, height: 256, fit: "cover" })
+                .webp({ quality: 80 })
+                .toFile(webpPath);
+            // Remove original
+            try { fs.unlinkSync(filePath); } catch (e) { /* ignore */ }
+            user.avatar = webpFilename;
+        } catch (sharpErr) {
+            console.error("Avatar sharp error:", sharpErr.message);
+            // Fallback: use original
+            user.avatar = filename;
         }
-
-        user.avatar = filename;
 
         await user.save();
 
         res.json({
             success: true,
-            avatar: `/uploads/${filename}`
+            avatar: "/uploads/" + user.avatar
         });
 
     } catch (error) {
@@ -518,7 +541,7 @@ router.get("/dashboard", async (req, res) => {
             process.env.JWT_SECRET
         );
 
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(decoded.id).select("username email avatar premium").lean();
 
         res.render("dashboard", { user });
     } catch {
@@ -534,7 +557,7 @@ router.get("/chat", async (req, res) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(decoded.id).select("username email avatar premium").lean();
 
         if (!user) return res.redirect("/login");
 
@@ -544,10 +567,11 @@ router.get("/chat", async (req, res) => {
             // or: return res.redirect("/dashboard");
         }
 
-        // Load the last 100 messages from MongoDB
-        const messages = await Message.find()
+        // Load the last 100 messages from MongoDB (lean + projection for speed)
+        const messages = await Message.find({}, { username: 1, message: 1, createdAt: 1 })
             .sort({ createdAt: 1 })
-            .limit(100);
+            .limit(100)
+            .lean();
 
         res.set("Cache-Control", "no-cache, no-store, must-revalidate");
 
@@ -571,7 +595,7 @@ router.get("/commodities", async (req, res) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(decoded.id).select("username email avatar premium").lean();
 
         if (!user) return res.redirect("/login");
 
@@ -591,7 +615,7 @@ router.get("/crypto", async (req, res) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(decoded.id).select("username email avatar premium").lean();
 
         if (!user) return res.redirect("/login");
 

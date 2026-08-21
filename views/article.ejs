@@ -30,7 +30,7 @@
 
 <nav class="navbar">
     <a class="logo" href="/" aria-label="Mudraaa home">
-        <img class="logo-img" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
+        <img class="logo-img" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high" width="140" height="40" decoding="async">
     </a>
     <div class="nav-links">
         <button id="themeBtn" class="btn btn-ghost btn-sm"></button>
@@ -113,7 +113,7 @@
             <article class="news-card news-card--compact">
                 <a href="/news/<%= recent[i]._id %>" class="news-card__image-wrap news-card__image-wrap--sm" aria-label="<%= recent[i].title %>">
                     <% if (recent[i].featuredImage) { %>
-                        <img src="<%= recent[i].featuredImage %>" alt="<%= recent[i].title %>" loading="lazy" class="news-card__image">
+                        <img src="<%= recent[i].featuredImage %>" alt="<%= recent[i].title %>" loading="lazy" width="160" height="120" decoding="async" class="news-card__image">
                     <% } else { %>
                         <div class="news-card__placeholder news-card__placeholder--sm">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>

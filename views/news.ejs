@@ -24,7 +24,7 @@
 
 <nav class="navbar">
     <a class="logo" href="/" aria-label="Mudraaa home">
-        <img class="logo-img" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high">
+        <img class="logo-img" src="/img/logo.svg" alt="Mudraaa" fetchpriority="high" width="140" height="40" decoding="async">
     </a>
     <div class="nav-links">
         <button id="themeBtn" class="btn btn-ghost btn-sm"></button>
@@ -52,7 +52,7 @@
                 <article class="news-card news-card--hero">
                     <a href="/news/<%= trending[0]._id %>" class="news-card__image-wrap" aria-label="<%= trending[0].title %>">
                         <% if (trending[0].featuredImage) { %>
-                            <img src="<%= trending[0].featuredImage %>" alt="<%= trending[0].title %>" loading="lazy" class="news-card__image">
+                            <img src="<%= trending[0].featuredImage %>" alt="<%= trending[0].title %>" loading="eager" fetchpriority="high" class="news-card__image" width="600" height="400">
                         <% } else { %>
                             <div class="news-card__placeholder">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
@@ -87,7 +87,7 @@
                     <article class="news-card news-card--row">
                         <a href="/news/<%= trending[i]._id %>" class="news-card__image-wrap news-card__image-wrap--sm" aria-label="<%= trending[i].title %>">
                             <% if (trending[i].featuredImage) { %>
-                                <img src="<%= trending[i].featuredImage %>" alt="<%= trending[i].title %>" loading="lazy" class="news-card__image">
+                                <img src="<%= trending[i].featuredImage %>" alt="<%= trending[i].title %>" loading="lazy" class="news-card__image" width="160" height="120">
                             <% } else { %>
                                 <div class="news-card__placeholder news-card__placeholder--sm">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
@@ -129,8 +129,8 @@
                 <% for (var i = 0; i < featured.length; i++) { %>
                 <article class="news-card">
                     <a href="/news/<%= featured[i]._id %>" class="news-card__image-wrap" aria-label="<%= featured[i].title %>">
-                        <% if (featured[i].featuredImage) { %>
-                            <img src="<%= featured[i].featuredImage %>" alt="<%= featured[i].title %>" loading="lazy" class="news-card__image">
+                            <% if (featured[i].featuredImage) { %>
+                                <img src="<%= featured[i].featuredImage %>" alt="<%= featured[i].title %>" loading="lazy" width="400" height="260" decoding="async" class="news-card__image">
                         <% } else { %>
                             <div class="news-card__placeholder">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
@@ -181,8 +181,8 @@
                 <% for (var i = 0; i < latest.length; i++) { %>
                 <article class="news-card news-card--compact">
                     <a href="/news/<%= latest[i]._id %>" class="news-card__image-wrap news-card__image-wrap--sm" aria-label="<%= latest[i].title %>">
-                        <% if (latest[i].featuredImage) { %>
-                            <img src="<%= latest[i].featuredImage %>" alt="<%= latest[i].title %>" loading="lazy" class="news-card__image">
+                            <% if (latest[i].featuredImage) { %>
+                                <img src="<%= latest[i].featuredImage %>" alt="<%= latest[i].title %>" loading="lazy" width="400" height="260" decoding="async" class="news-card__image">
                         <% } else { %>
                             <div class="news-card__placeholder news-card__placeholder--sm">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>

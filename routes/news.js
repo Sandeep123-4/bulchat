@@ -3,10 +3,19 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const sharp = require("sharp");
 const User = require("../models/user");
 const News = require("../models/News");
 
 const router = express.Router();
+
+// Helper to invalidate public news page cache
+function invalidateNewsCache() {
+    try {
+        const publicRouter = require("./public");
+        if (publicRouter._invalidateNewsCache) publicRouter._invalidateNewsCache();
+    } catch (e) { /* ignore */ }
+}
 
 const NEWS_IMAGES_DIR = path.join(__dirname, "..", "public", "uploads", "news", "images");
 const NEWS_ATTACH_DIR = path.join(__dirname, "..", "public", "uploads", "news", "attachments");
@@ -132,6 +141,62 @@ function deleteFile(filePath) {
     } catch (e) { /* ignore */ }
 }
 
+// Process uploaded image: resize, convert to WebP, generate thumbnails
+async function processNewsImage(filePath) {
+    try {
+        const ext = path.extname(filePath).toLowerCase();
+        const base = filePath.replace(ext, "");
+
+        // Resize to max 1200px wide and convert to WebP
+        const webpPath = base + ".webp";
+        await sharp(filePath)
+            .resize({ width: 1200, height: 900, fit: "inside", withoutEnlargement: true })
+            .webp({ quality: 82 })
+            .toFile(webpPath);
+
+        // Generate thumbnail (400px wide)
+        const thumbPath = base + "-thumb.webp";
+        await sharp(filePath)
+            .resize({ width: 400, height: 300, fit: "cover" })
+            .webp({ quality: 75 })
+            .toFile(thumbPath);
+
+        // Remove original if it's not already WebP
+        if (ext !== ".webp") {
+            try { fs.unlinkSync(filePath); } catch (e) { /* ignore */ }
+        }
+
+        return { webp: webpPath, thumb: thumbPath };
+    } catch (e) {
+        console.error("Image processing error:", e.message);
+        return null;
+    }
+}
+
+// Process avatar: resize to 256x256 and convert to WebP
+async function processAvatar(filePath) {
+    try {
+        const ext = path.extname(filePath).toLowerCase();
+        const base = filePath.replace(ext, "");
+        const webpPath = base + ".webp";
+
+        await sharp(filePath)
+            .resize({ width: 256, height: 256, fit: "cover" })
+            .webp({ quality: 80 })
+            .toFile(webpPath);
+
+        // Remove original if not WebP
+        if (ext !== ".webp") {
+            try { fs.unlinkSync(filePath); } catch (e) { /* ignore */ }
+        }
+
+        return webpPath;
+    } catch (e) {
+        console.error("Avatar processing error:", e.message);
+        return filePath;
+    }
+}
+
 function cleanupPostFiles(post) {
     if (post.featuredImage) {
         deleteFile(path.join(NEWS_IMAGES_DIR, path.basename(post.featuredImage)));
@@ -202,6 +267,7 @@ router.post("/api/news", authMiddleware, async (req, res) => {
             existing.status = validStatus;
 
             await existing.save();
+            invalidateNewsCache();
             return res.json({ success: true, post: existing, message: "Post updated" });
         }
 
@@ -221,6 +287,7 @@ router.post("/api/news", authMiddleware, async (req, res) => {
             publishedAt: validStatus === "published" ? new Date() : null
         });
 
+        invalidateNewsCache();
         res.json({ success: true, post, message: "Post created" });
     } catch (err) {
         console.error("Create/update post error:", err);
@@ -273,6 +340,7 @@ router.delete("/api/news/:id", authMiddleware, async (req, res) => {
 
         cleanupPostFiles(post);
         await News.findByIdAndDelete(req.params.id);
+        invalidateNewsCache();
 
         res.json({ success: true, message: "Post deleted" });
     } catch (err) {
@@ -283,7 +351,7 @@ router.delete("/api/news/:id", authMiddleware, async (req, res) => {
 
 // POST /api/news/upload/featured - Upload featured image
 router.post("/api/news/upload/featured", authMiddleware, (req, res) => {
-    uploadImage.single("image")(req, res, (err) => {
+    uploadImage.single("image")(req, res, async (err) => {
         if (err) {
             if (err instanceof multer.MulterError) {
                 if (err.code === "LIMIT_FILE_SIZE") {
@@ -294,14 +362,21 @@ router.post("/api/news/upload/featured", authMiddleware, (req, res) => {
         }
         if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
+        // Process image in background (resize + WebP + thumbnail)
+        const processed = await processNewsImage(req.file.path);
+
+        const webpFilename = req.file.filename.replace(path.extname(req.file.filename), ".webp");
+        const thumbFilename = req.file.filename.replace(path.extname(req.file.filename), "-thumb.webp");
+
         res.json({
             success: true,
             file: {
-                filename: req.file.filename,
-                path: `/uploads/news/images/${req.file.filename}`,
+                filename: processed ? webpFilename : req.file.filename,
+                path: processed ? `/uploads/news/images/${webpFilename}` : `/uploads/news/images/${req.file.filename}`,
+                thumbPath: processed ? `/uploads/news/images/${thumbFilename}` : null,
                 originalName: req.file.originalname,
                 size: req.file.size,
-                mimetype: req.file.mimetype
+                mimetype: processed ? "image/webp" : req.file.mimetype
             }
         });
     });
@@ -309,7 +384,7 @@ router.post("/api/news/upload/featured", authMiddleware, (req, res) => {
 
 // POST /api/news/upload/images - Upload additional images
 router.post("/api/news/upload/images", authMiddleware, (req, res) => {
-    uploadImage.array("images", MAX_IMAGES)(req, res, (err) => {
+    uploadImage.array("images", MAX_IMAGES)(req, res, async (err) => {
         if (err) {
             if (err instanceof multer.MulterError) {
                 if (err.code === "LIMIT_FILE_SIZE") {
@@ -325,13 +400,22 @@ router.post("/api/news/upload/images", authMiddleware, (req, res) => {
             return res.status(400).json({ error: "No files uploaded" });
         }
 
-        const files = req.files.map(f => ({
-            filename: f.filename,
-            path: `/uploads/news/images/${f.filename}`,
-            originalName: f.originalname,
-            size: f.size,
-            mimetype: f.mimetype
-        }));
+        // Process all images in parallel
+        await Promise.all(req.files.map(f => processNewsImage(f.path)));
+
+        const files = req.files.map(f => {
+            const webpFilename = f.filename.replace(path.extname(f.filename), ".webp");
+            const thumbFilename = f.filename.replace(path.extname(f.filename), "-thumb.webp");
+            const webpExists = fs.existsSync(path.join(NEWS_IMAGES_DIR, webpFilename));
+            return {
+                filename: webpExists ? webpFilename : f.filename,
+                path: webpExists ? `/uploads/news/images/${webpFilename}` : `/uploads/news/images/${f.filename}`,
+                thumbPath: fs.existsSync(path.join(NEWS_IMAGES_DIR, thumbFilename)) ? `/uploads/news/images/${thumbFilename}` : null,
+                originalName: f.originalname,
+                size: f.size,
+                mimetype: webpExists ? "image/webp" : f.mimetype
+            };
+        });
 
         res.json({ success: true, files });
     });

@@ -16,6 +16,7 @@
     "morgan": "^1.11.0",
     "multer": "^2.1.1",
     "resend": "^6.20.0",
+    "sharp": "^0.35.3",
     "socket.io": "^4.8.3",
     "yahoo-finance2": "^4.0.2"
   },

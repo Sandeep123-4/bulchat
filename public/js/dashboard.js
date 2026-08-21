@@ -693,5 +693,19 @@ Promise.allSettled([
     fetchIndexChart()
 ]);
 
-setInterval(fetchNepseIndex, 10000);
-setInterval(fetchGlobalPrices, 60000);
+/* ===== Visibility API: pause intervals when tab is hidden ===== */
+var nepseInterval = setInterval(fetchNepseIndex, 10000);
+var pricesInterval = setInterval(fetchGlobalPrices, 60000);
+
+document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+        clearInterval(nepseInterval);
+        clearInterval(pricesInterval);
+    } else {
+        // Refresh immediately when tab becomes visible again
+        fetchNepseIndex();
+        fetchGlobalPrices();
+        nepseInterval = setInterval(fetchNepseIndex, 10000);
+        pricesInterval = setInterval(fetchGlobalPrices, 60000);
+    }
+});
