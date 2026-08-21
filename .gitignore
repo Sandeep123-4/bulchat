@@ -4,3 +4,4 @@ server.log.err
 server-error.log
 .env
 data/price-history.json
+public\uploads
